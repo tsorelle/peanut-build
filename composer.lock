@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b82f5d4dff84d601e017a525a314340",
+    "content-hash": "b68728e61f172447925b05aa5a45e2fe",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -671,12 +671,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "9ddb181faa4a3841fe131c357fd01de75cbb4da9"
+                "reference": "a6ce111630a5eea291d13c273295853ac1a7bf1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/9ddb181faa4a3841fe131c357fd01de75cbb4da9",
-                "reference": "9ddb181faa4a3841fe131c357fd01de75cbb4da9",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/a6ce111630a5eea291d13c273295853ac1a7bf1f",
+                "reference": "a6ce111630a5eea291d13c273295853ac1a7bf1f",
                 "shasum": ""
             },
             "require": {
@@ -712,7 +712,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-03-07 07:36:57"
+            "time": "2017-07-25 09:28:19"
         },
         {
             "name": "phpunit/phpunit",
@@ -1492,6 +1492,40 @@
             "time": "2017-07-24 13:37:02"
         },
         {
+            "name": "twoquakers/peanut-wp",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
+                "reference": "227c1a1599fb4cb3adc9278f85ce224bd1e44970"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/227c1a1599fb4cb3adc9278f85ce224bd1e44970",
+                "reference": "227c1a1599fb4cb3adc9278f85ce224bd1e44970",
+                "shasum": ""
+            },
+            "require": {
+                "phpunit/phpunit": "6.1.3"
+            },
+            "type": "library",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Terry SoRelle",
+                    "email": "tls@2quakers.net"
+                }
+            ],
+            "description": "Peanut Framework Adapted for Wordpress",
+            "support": {
+                "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
+                "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
+            },
+            "time": "2017-07-26 09:41:16"
+        },
+        {
             "name": "twoquakers/tops",
             "version": "dev-master",
             "source": {
@@ -1588,7 +1622,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "twoquakers/tops": 20,
-        "twoquakers/peanut": 20
+        "twoquakers/peanut": 20,
+        "twoquakers/peanut-wp": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

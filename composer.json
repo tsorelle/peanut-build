@@ -17,11 +17,16 @@
     {
       "type": "vcs",
       "url": "https://github.com/tsorelle/peanut"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/tsorelle/peanut-for-wordpress"
     }
   ],
   "require": {
     "twoquakers/tops" : "dev-master",
     "twoquakers/peanut" : "dev-master",
+    "twoquakers/peanut-wp" : "dev-master",
     "phpunit/phpunit": "6.1.3",
     "michelf/php-markdown": "1.7.0"
   }

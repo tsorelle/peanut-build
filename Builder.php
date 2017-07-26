@@ -52,7 +52,10 @@ class Builder
             $sourceFile = "$sourceDir/$file";
             $targetFile = "$targetDir/$file";
             if (is_dir($sourceFile)) {
-                $this->copyDir($sourceFile,$targetFile);
+                if (!file_exists($targetFile)) {
+                    @mkdir($targetFile);
+                }
+                $this->copyDirectoryContents($sourceFile,$targetFile);
             }
             else {
                 $this->copyFile($sourceFile,$targetFile);
@@ -158,14 +161,6 @@ class Builder
         return realpath($rawpath);
     }
 
-    private function getModuleOffset($project)
-    {
-        $moduleSub = $this->settings['modules'][$project];
-        $offset = sizeof(explode('/',$moduleSub));
-        return $offset;
-    }
-
-
 
 
     public static function Build($projects=null)
@@ -211,6 +206,19 @@ class Builder
 
     }
 
+    public static function BuildWordpress($projects=null) {
+
+        $builder = new Builder();
+        $projects = (empty($projects)) ?
+            array_keys($builder->settings['wordpress']) :
+            explode(',', $projects);
+        foreach ($projects as $project) {
+            $builder->deployWordpress($project);
+        }
+        print "\nWordpress updates completed\n";
+
+    }
+
     private function fixReferencePaths($project, $appPath) {
         $vmDir = $this->concatPath($appPath,'mvvm/vm');
         $moduleSub =  '/'.$this->settings['modules'][$project].'/';
@@ -232,6 +240,147 @@ class Builder
                 }
                 file_put_contents($filePath,$lines);
             }
+        }
+    }
+
+    private function getIniSetting($line) {
+        $result = new \stdClass();
+        $result->commented = substr($line,0,1) == ';';
+        if ($result->commented) {
+            $line=trim(substr($line,1));
+        }
+        $parts = explode('=',$line);
+        if (sizeof($parts) != 2) {
+           return false;
+        }
+        else {
+            $result->key = $parts[0];
+            $result->value = $parts[1];
+        }
+        return $result;
+    }
+
+
+    private function deployWordpress($project) {
+        print "Updating Peanut/Wordpress for $project...";
+        $modulePath = $this->getModulePath($project);
+        if (!file_exists($modulePath.'/src')) {
+            print "Please update Tops for project '$project'.\n";
+            return;
+        }
+        $sourcePath = $this->getSourcePath('wordpress');
+        $srcModulePath = $this->concatPath($sourcePath,'wp-content/plugins/peanut');
+
+        $srcFile = $srcModulePath.'/peanut.php';
+        $targetFile = $modulePath.'/peanut.php';
+        copy($srcFile,$targetFile);
+        $targetPath  = $modulePath.'/src/wordpress';
+        $this->makeDir($targetPath);
+        $this->copyDirectoryContents($srcModulePath.'/src/wordpress',$targetPath);
+
+        $appPath = $this->getApplicationPath($project);
+        $iniFile = $this->concatPath($appPath,'config/settings.ini');
+        if (file_exists($iniFile)) {
+            $lines = file($iniFile);
+            $count = sizeof($lines);
+            $themeSectionFound = false;
+            $autoloadSectionFound = false;
+            $autoloadFound = false;
+            $modulePathFound = false;
+            $changed = false;
+            $modulePathKey= 'modulePath';
+            $modulePathValue= 'wp-content/plugins/peanut';
+            $autoloadKey = 'Tops\wordpress';
+            $autoloadValue = '[pnut-src]\wordpress';
+            $section = '';
+            $newFile = array();
+
+            for ($i=0;$i<=$count;$i++) {
+                $line = $i == $count ? '(eof)' : trim($lines[$i]);
+                if (substr($line,0,1) == '[') {
+                    switch ($line) {
+                        case '[theme-peanut-philips]' :
+                            $themeSectionFound = true;
+                            break;
+                        case '[autoload]' :
+                            $autoloadSectionFound = true;
+                            break;
+                    }
+                    switch($section) {
+                        case '[peanut]' :
+                            if (!$modulePathFound) {
+                                $newFile[] = "$modulePathKey=$modulePathValue";
+                                $changed = true;
+                            }
+                            break;
+                        case '[autoload]' :
+                            if (!$autoloadFound) {
+                                $newFile[] = "$autoloadKey=$autoloadValue";
+                                $changed = true;
+                            }
+                            break;
+                    }
+                    $section = $line;
+                }
+                else {
+                    switch($section) {
+                        case '[peanut]' :
+                            if (!$modulePathFound) {
+                                $setting = $this->getIniSetting($line);
+                                if ($setting !== FALSE) {
+                                    if ($setting->key == $modulePathKey) {
+                                        if ($setting->commented || $setting->value !== $modulePathValue) {
+                                            $line = "$modulePathKey=$modulePathValue";
+                                            $modulePathFound = TRUE;
+                                            $changed = TRUE;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case '[autoload]' :
+                            if (!$autoloadFound) {
+                                $setting = $this->getIniSetting($line);
+                                if ($setting !== FALSE) {
+                                    if ($setting->key == $autoloadKey) {
+                                        if ($setting->commented || $setting->value !== $modulePathValue) {
+                                            $line = "$modulePathKey=$modulePathValue";
+                                            $modulePathFound = TRUE;
+                                            $changed = TRUE;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+                if ($line != '(eof)') {
+                    $newFile[] = $line;
+                }
+            }
+            if (!$themeSectionFound) {
+                $newFile[] = '';
+                $newFile[] = '[theme-peanut-philips]';
+                $newFile[] = '; bootstrap.library must correspond to the bookstrap script libray in the parent theme.';
+                $newFile[] = '; Look in theme/functions.php for something like:';
+                $newFile[] = '; wp_enqueue_script( \'bootstrap-js\', get_template_directory_uri() .\'/bootstrap/js/bootstrap.js\', array( \'jquery\' ) );';
+                $newFile[] = 'bootstrap.library = \'philips-bootstrap-js\'';
+                $changed = true;
+            }
+            if (!$autoloadSectionFound) {
+                $newFile[] = '[autoload]';
+                $newFile[]='; register autoload namespaces';
+                $newFile[]='; example: Quaker=\'application/src/quaker-meeting\'';
+                $newFile[]='Tops\wordpress=[pnut-src]\wordpress';
+                $changed = true;
+            }
+            if ($changed) {
+                file_put_contents($iniFile,implode("\n",$newFile));
+            }
+        }
+        else {
+            copy($sourcePath.'/web.root/application/config/settings.ini', $appPath.'/config/settings.ini');
         }
     }
 
