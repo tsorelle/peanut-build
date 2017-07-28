@@ -804,12 +804,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4"
+                "reference": "78ad28713e7e3a96c7597d1e24f4a393dff7d6b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4",
-                "reference": "d8833b396dce9162bb2eb5d59aee5a3ab3cfa5b4",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/78ad28713e7e3a96c7597d1e24f4a393dff7d6b4",
+                "reference": "78ad28713e7e3a96c7597d1e24f4a393dff7d6b4",
                 "shasum": ""
             },
             "require": {
@@ -855,7 +855,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2017-06-30 08:15:21"
+            "time": "2017-07-27 05:58:19"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1497,12 +1497,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
-                "reference": "227c1a1599fb4cb3adc9278f85ce224bd1e44970"
+                "reference": "9f974af047971b06db6cc3d3a689eea75619a38e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/227c1a1599fb4cb3adc9278f85ce224bd1e44970",
-                "reference": "227c1a1599fb4cb3adc9278f85ce224bd1e44970",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/9f974af047971b06db6cc3d3a689eea75619a38e",
+                "reference": "9f974af047971b06db6cc3d3a689eea75619a38e",
                 "shasum": ""
             },
             "require": {
@@ -1523,7 +1523,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
             },
-            "time": "2017-07-26 09:41:16"
+            "time": "2017-07-27 10:48:10"
         },
         {
             "name": "twoquakers/tops",
@@ -1531,12 +1531,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/tops.git",
-                "reference": "41e91955c8c0eb25e1762710522c774eccfbe0ae"
+                "reference": "71049c5e969784b96db1c35261d1912f0d9f4d73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/tops/zipball/41e91955c8c0eb25e1762710522c774eccfbe0ae",
-                "reference": "41e91955c8c0eb25e1762710522c774eccfbe0ae",
+                "url": "https://api.github.com/repos/tsorelle/tops/zipball/71049c5e969784b96db1c35261d1912f0d9f4d73",
+                "reference": "71049c5e969784b96db1c35261d1912f0d9f4d73",
                 "shasum": ""
             },
             "require": {
@@ -1564,7 +1564,7 @@
                 "source": "https://github.com/tsorelle/tops/tree/master",
                 "issues": "https://github.com/tsorelle/tops/issues"
             },
-            "time": "2017-07-23 12:26:31"
+            "time": "2017-07-27 10:35:59"
         },
         {
             "name": "webmozart/assert",

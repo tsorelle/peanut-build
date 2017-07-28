@@ -1,6 +1,7 @@
 <?php
 namespace Peanut;
 use PHPUnit\Runner\Exception;
+use ZipArchive;
 
 /**
  * Created by PhpStorm.
@@ -155,10 +156,20 @@ class Builder
     }
 
 
-    private function getSourcePath($lib) {
+    private function getSourcePath($lib,$sub='') {
         $path = $this->settings['vendor'][$lib];
         $rawpath = __DIR__."/vendor/$path";
-        return realpath($rawpath);
+        if ($sub) {
+            $rawpath .= "/$sub";
+        }
+        $path = realpath($rawpath);
+        if ($path === false) {
+            return false;
+        }
+        if (strpos($path,':') == 1) {
+            $path = substr($path,2);
+        }
+        return str_replace('\\','/',$path);
     }
 
 
@@ -204,6 +215,18 @@ class Builder
         print "\nProjects completed\n";
 
 
+    }
+    public static function BuildDistribution($projects=null)
+    {
+
+        $builder = new Builder();
+        $projects = (empty($projects)) ?
+            array_keys($builder->settings['distribution']) :
+            explode(',', $projects);
+        foreach ($projects as $project) {
+            $builder->buildZip($project);
+        }
+        print "\nProjects completed\n";
     }
 
     public static function BuildWordpress($projects=null) {
@@ -268,7 +291,7 @@ class Builder
             print "Please update Tops for project '$project'.\n";
             return;
         }
-        $sourcePath = $this->getSourcePath('wordpress');
+        $sourcePath = $this->getSourcePath('pnutwp','web.root');
         $srcModulePath = $this->concatPath($sourcePath,'wp-content/plugins/peanut');
 
         $srcFile = $srcModulePath.'/peanut.php';
@@ -279,6 +302,12 @@ class Builder
         $this->copyDirectoryContents($srcModulePath.'/src/wordpress',$targetPath);
 
         $appPath = $this->getApplicationPath($project);
+        $themesIni = $this->concatPath($appPath,'config/themes.ini');
+        if (!file_exists($themesIni)) {
+            $srcConfigPath = $this->concatPath($sourcePath,'application/config/themes.ini');
+            copy($srcConfigPath, $themesIni );
+        }
+
         $iniFile = $this->concatPath($appPath,'config/settings.ini');
         if (file_exists($iniFile)) {
             $lines = file($iniFile);
@@ -299,9 +328,6 @@ class Builder
                 $line = $i == $count ? '(eof)' : trim($lines[$i]);
                 if (substr($line,0,1) == '[') {
                     switch ($line) {
-                        case '[theme-peanut-philips]' :
-                            $themeSectionFound = true;
-                            break;
                         case '[autoload]' :
                             $autoloadSectionFound = true;
                             break;
@@ -329,9 +355,9 @@ class Builder
                                 $setting = $this->getIniSetting($line);
                                 if ($setting !== FALSE) {
                                     if ($setting->key == $modulePathKey) {
+                                        $modulePathFound = TRUE;
                                         if ($setting->commented || $setting->value !== $modulePathValue) {
                                             $line = "$modulePathKey=$modulePathValue";
-                                            $modulePathFound = TRUE;
                                             $changed = TRUE;
                                         }
                                     }
@@ -345,8 +371,8 @@ class Builder
                                 if ($setting !== FALSE) {
                                     if ($setting->key == $autoloadKey) {
                                         if ($setting->commented || $setting->value !== $modulePathValue) {
-                                            $line = "$modulePathKey=$modulePathValue";
-                                            $modulePathFound = TRUE;
+                                            $line = "$autoloadKey=$autoloadValue";
+                                            $autoloadFound = TRUE;
                                             $changed = TRUE;
                                         }
                                     }
@@ -358,15 +384,6 @@ class Builder
                 if ($line != '(eof)') {
                     $newFile[] = $line;
                 }
-            }
-            if (!$themeSectionFound) {
-                $newFile[] = '';
-                $newFile[] = '[theme-peanut-philips]';
-                $newFile[] = '; bootstrap.library must correspond to the bookstrap script libray in the parent theme.';
-                $newFile[] = '; Look in theme/functions.php for something like:';
-                $newFile[] = '; wp_enqueue_script( \'bootstrap-js\', get_template_directory_uri() .\'/bootstrap/js/bootstrap.js\', array( \'jquery\' ) );';
-                $newFile[] = 'bootstrap.library = \'philips-bootstrap-js\'';
-                $changed = true;
             }
             if (!$autoloadSectionFound) {
                 $newFile[] = '[autoload]';
@@ -382,6 +399,7 @@ class Builder
         else {
             copy($sourcePath.'/web.root/application/config/settings.ini', $appPath.'/config/settings.ini');
         }
+        print "\n";
     }
 
     /**
@@ -435,5 +453,75 @@ class Builder
         $this->makeDir($targetTops);
         $this->copyDirectoryContents($topsSourcePath, $targetTops);
         print "done\n";
+    }
+
+    private function buildZip($project) {
+        print "Building distribution files for $project...";
+        $sourceRoot = $this->getSourcePath($project);
+        $projSettingsFile = $sourceRoot."\web.root\application\config\settings.ini";
+        $srcSettings = parse_ini_file($projSettingsFile,true);
+        if ($srcSettings === false) {
+            print "\nSource settings for $project not found.";
+            return;
+        }
+        $version = $srcSettings['peanut']['applicationVersionNumber'];
+        $dateStamp = date('Y-m-d');
+        $zipname = $this->settings['distribution'][$project];
+        $zipname = "$zipname-v$version-$dateStamp.zip";
+        // print "\n$zipname\n";
+
+        $zip = new ZipArchive();
+        $buildDir = __DIR__;
+
+        $distini = parse_ini_file("$buildDir/$project-dist.ini",true);
+        $includes = array();
+        $excludes = array();
+        foreach ($distini['files'] as $key => $value) {
+            if (empty($value)) {
+                $excludes[] = str_replace('\\','/',$key);
+            }
+            else {
+                $includes[] = str_replace('\\','/',$key);
+            }
+        }
+
+        $zip->open("$buildDir/dist/".$zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        foreach ($includes as $dir) {
+            $dir =  str_replace('\\','/',$dir);
+            $this->zipDirectory($zip,"$sourceRoot/$dir",$dir,$excludes);
+        }
+
+        $modulePath = $this->settings['modules'][$project];
+        $topsSrc = $this->getSourcePath('tops');
+        $pnutSrc = $this->getSourcePath('pnut');
+        $this->zipDirectory($zip,"$topsSrc","$modulePath/src");
+        $this->zipDirectory($zip,"$pnutSrc/modules/pnut","$modulePath/pnut");
+        $zip->close();
+
+        print "done\n";
+    }
+
+    private function zipDirectory(ZipArchive $zip, $srcPath, $directory,array $excludes=array()) {
+        $zip->addEmptyDir($directory);
+        $topfiles = scandir($srcPath); //"$srcPath/$directory");
+        foreach ($topfiles as $file) {
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
+            $targetFile = "$directory/$file";
+            if (in_array($targetFile,$excludes)) {
+                continue;
+            }
+            $sourceFile = "$srcPath/$targetFile";
+            if (is_dir($sourceFile)) {
+                $this->zipDirectory($zip,$sourceFile,$targetFile,$excludes);
+            }
+            else {
+                $zip->addFile($sourceFile,$targetFile);
+            }
+        }
+
+
     }
 }
