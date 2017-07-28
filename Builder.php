@@ -513,7 +513,7 @@ class Builder
             if (in_array($targetFile,$excludes)) {
                 continue;
             }
-            $sourceFile = "$srcPath/$targetFile";
+            $sourceFile = "$srcPath/$file";
             if (is_dir($sourceFile)) {
                 $this->zipDirectory($zip,$sourceFile,$targetFile,$excludes);
             }
