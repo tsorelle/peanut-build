@@ -509,7 +509,7 @@ class Builder
         $modulePath = $this->settings['modules'][$project];
         $topsSrc = $this->getSourcePath('tops');
         $pnutSrc = $this->getSourcePath('pnut');
-        $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src");
+        $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,"$pnutSrc/modules/pnut","web.root/$modulePath/pnut");
        $this->addConfigFiles($zip,$project);
         $zip->close();
