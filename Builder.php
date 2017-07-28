@@ -283,6 +283,20 @@ class Builder
         return $result;
     }
 
+    private function addConfigFiles(ZipArchive $zip, $project) {
+        $values = parse_ini_file(__DIR__."/$project-dist.ini",true)["values"];
+        $templatePath = __DIR__.'/templates';
+        $settings = file_get_contents("$templatePath/settings.ini");
+        foreach ($values as $key=>$value) {
+            $settings = str_replace('{{'.$key.'}}',$value,$settings);
+        }
+        file_put_contents("$templatePath/settings.tmp",$settings);
+        $configPath = 'web.root/application/config';
+        $zip->addFile("$templatePath/settings.tmp","$configPath/settings.ini");
+        $zip->addFile("$templatePath/database.ini","$configPath/database.ini");
+        $zip->addFile("$templatePath/viewmodels.ini","$configPath/viewmodels.ini");
+
+    }
 
     private function deployWordpress($project) {
         print "Updating Peanut/Wordpress for $project...";
@@ -495,10 +509,10 @@ class Builder
         $modulePath = $this->settings['modules'][$project];
         $topsSrc = $this->getSourcePath('tops');
         $pnutSrc = $this->getSourcePath('pnut');
-        $this->zipDirectory($zip,"$topsSrc","$modulePath/src");
-        $this->zipDirectory($zip,"$pnutSrc/modules/pnut","$modulePath/pnut");
+        $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src");
+        $this->zipDirectory($zip,"$pnutSrc/modules/pnut","web.root/$modulePath/pnut");
+       $this->addConfigFiles($zip,$project);
         $zip->close();
-
         print "done\n";
     }
 
