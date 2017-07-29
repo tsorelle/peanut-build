@@ -33,6 +33,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut-c5" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut-d8" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart/assert" />
@@ -73,6 +74,7 @@
           <root url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-c5" />
+          <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-d8" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
           <root url="file://$MODULE_DIR$/vendor/webmozart/assert" />
@@ -109,6 +111,7 @@
           <root url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-c5" />
+          <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-d8" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
           <root url="file://$MODULE_DIR$/vendor/webmozart/assert" />

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "797db47cd9daa6c821539346fc6dbfc0",
+    "content-hash": "64abd57f4b7e7640160603c4d1a689ae",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1523,6 +1523,37 @@
             "time": "2017-07-29 13:39:46"
         },
         {
+            "name": "twoquakers/peanut-d8",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tsorelle/peanut-for-drupal8.git",
+                "reference": "9aa4d27d71a937e5f0fc0192bf29a3de3d7537e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/9aa4d27d71a937e5f0fc0192bf29a3de3d7537e2",
+                "reference": "9aa4d27d71a937e5f0fc0192bf29a3de3d7537e2",
+                "shasum": ""
+            },
+            "type": "library",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Terry SoRelle",
+                    "email": "tls@2quakers.net"
+                }
+            ],
+            "description": "Peanut Framework Adapted for Drupal8",
+            "support": {
+                "source": "https://github.com/tsorelle/peanut-for-drupal8/tree/master",
+                "issues": "https://github.com/tsorelle/peanut-for-drupal8/issues"
+            },
+            "time": "2017-07-29 13:56:08"
+        },
+        {
             "name": "twoquakers/peanut-wp",
             "version": "dev-master",
             "source": {
@@ -1655,7 +1686,8 @@
         "twoquakers/tops": 20,
         "twoquakers/peanut": 20,
         "twoquakers/peanut-wp": 20,
-        "twoquakers/peanut-c5": 20
+        "twoquakers/peanut-c5": 20,
+        "twoquakers/peanut-d8": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

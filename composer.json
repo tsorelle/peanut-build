@@ -25,6 +25,10 @@
     {
       "type": "vcs",
       "url": "https://github.com/tsorelle/peanut-for-concrete5"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/tsorelle/peanut-for-drupal8"
     }
   ],
   "require": {
@@ -32,6 +36,7 @@
     "twoquakers/peanut" : "dev-master",
     "twoquakers/peanut-wp" : "dev-master",
     "twoquakers/peanut-c5" : "dev-master",
+    "twoquakers/peanut-d8" : "dev-master",
     "phpunit/phpunit": "6.1.3",
     "michelf/php-markdown": "1.7.0"
   }
