@@ -9,6 +9,9 @@ use ZipArchive;
  * Date: 7/16/2017
  * Time: 4:37 AM
  */
+
+
+
 class Builder
 {
     private static $instance;
@@ -82,10 +85,10 @@ class Builder
         return rmdir($dir);
     }
 
+
     function __construct()
     {
         $this->settings = parse_ini_file(__DIR__.'/settings.ini',true);
-        //$this->sources = $this->getSourcePaths();
     }
 
     private function makeDir($path,$mode='clear')
@@ -110,18 +113,6 @@ class Builder
         return self::$instance;
     }
 
-    private function getSourcePaths()
-    {
-        $result = new \stdClass();
-        $paths =  $this->settings['vendor'];
-        $raw = __DIR__."/../vendor/".$this->settings['vendor']['app'];
-        $result->application = realpath(__DIR__."/vendor/".$this->settings['vendor']['app']);
-        $result->peanut = realpath(__DIR__."/vendor/".$this->settings['vendor']['pnut']);
-        $result->tops = realpath(__DIR__."/vendor/".$this->settings['vendor']['tops']);
-        return $result;
-    }
-
-    
     private function getProjectRoot($project) {
         $buildRoot = realpath(__DIR__."/..");
         $projectRoot = $this->settings['projects'][$project];
@@ -169,7 +160,7 @@ class Builder
         if (strpos($path,':') == 1) {
             $path = substr($path,2);
         }
-        return str_replace('\\','/',$path);
+        return $path;
     }
 
 
@@ -498,22 +489,44 @@ class Builder
                 $includes[] = str_replace('\\','/',$key);
             }
         }
+        $zipFilePath = "$buildDir/dist/".$zipname;
+        if (file_exists($zipFilePath)) {
+            unlink($zipFilePath);
+        }
+        $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-        $zip->open("$buildDir/dist/".$zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        foreach ($distini['rename'] as $file=>$target) {
+            $this->addFromSource($file, $sourceRoot, $zip, $excludes,$target);
+        }
 
-        foreach ($includes as $dir) {
-            $dir =  str_replace('\\','/',$dir);
-            $this->zipDirectory($zip,"$sourceRoot/$dir",$dir,$excludes);
+        foreach ($includes as $file) {
+            $this->addFromSource($file, $sourceRoot, $zip, $excludes);
         }
 
         $modulePath = $this->settings['modules'][$project];
         $topsSrc = $this->getSourcePath('tops');
         $pnutSrc = $this->getSourcePath('pnut');
+        $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
+        if ($pnutSrcRoot === false) {
+            print "\nPeanut root path not found.\n";
+            return;
+        }
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
-        $this->zipDirectory($zip,"$pnutSrc/modules/pnut","web.root/$modulePath/pnut");
-       $this->addConfigFiles($zip,$project);
+        $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
+        $this->addPeanutConfigScript($zip, $pnutSrc,  'settings.php');
+        $this->addPeanutConfigScript($zip, $pnutSrc,  'peanut-bootstrap.php');
+        $this->addConfigFiles($zip,$project);
         $zip->close();
         print "done\n";
+    }
+
+    private function addPeanutConfigScript(ZipArchive $zip,$sourceRoot,$script) {
+        $targetFile = "web.root/application/config/$script";
+        $srcFile = realpath("$sourceRoot/application/config/$script");
+        if ($srcFile === FALSE) {
+            exit ("\nWARNING: Source file '$srcFile' not found.");
+        }
+        $zip->addFile($srcFile, $targetFile);
     }
 
     private function zipDirectory(ZipArchive $zip, $srcPath, $directory,array $excludes=array()) {
@@ -537,5 +550,33 @@ class Builder
         }
 
 
+    }
+
+    /**
+     * @param $file
+     * @param $sourceRoot
+     * @param $zip
+     * @param $excludes
+     */
+    private function addFromSource($file, $sourceRoot, $zip, $excludes=array(), $targetFile=null) {
+        $file = str_replace('\\', '/', $file);
+        if ($targetFile == null) {
+            $targetFile = $file;
+        }
+        else {
+            $targetFile = str_replace('\\', '/', $targetFile);
+
+        }
+        $srcFile = realpath("$sourceRoot/$file");
+        if ($srcFile === FALSE) {
+            exit ("\nWARNING: Source file '$sourceRoot/$file' not found.");
+        }
+
+        if (is_dir($srcFile)) {
+            $this->zipDirectory($zip, $srcFile, $targetFile, $excludes);
+        }
+        else {
+            $zip->addFile($srcFile, $targetFile);
+        }
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "b68728e61f172447925b05aa5a45e2fe",
+    "content-hash": "797db47cd9daa6c821539346fc6dbfc0",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1492,17 +1492,48 @@
             "time": "2017-07-24 13:37:02"
         },
         {
+            "name": "twoquakers/peanut-c5",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tsorelle/peanut-for-concrete5.git",
+                "reference": "b03f90a52a633609b6cb1048702a2ff1db1d0af6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-concrete5/zipball/b03f90a52a633609b6cb1048702a2ff1db1d0af6",
+                "reference": "b03f90a52a633609b6cb1048702a2ff1db1d0af6",
+                "shasum": ""
+            },
+            "type": "library",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Terry SoRelle",
+                    "email": "tls@2quakers.net"
+                }
+            ],
+            "description": "Peanut Framework Adapted for Concrete5",
+            "support": {
+                "source": "https://github.com/tsorelle/peanut-for-concrete5/tree/master",
+                "issues": "https://github.com/tsorelle/peanut-for-concrete5/issues"
+            },
+            "time": "2017-07-29 13:39:46"
+        },
+        {
             "name": "twoquakers/peanut-wp",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
-                "reference": "9f974af047971b06db6cc3d3a689eea75619a38e"
+                "reference": "31746038844bc2e7dc0f4dcf6b3f691ceb6e35bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/9f974af047971b06db6cc3d3a689eea75619a38e",
-                "reference": "9f974af047971b06db6cc3d3a689eea75619a38e",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/31746038844bc2e7dc0f4dcf6b3f691ceb6e35bb",
+                "reference": "31746038844bc2e7dc0f4dcf6b3f691ceb6e35bb",
                 "shasum": ""
             },
             "require": {
@@ -1523,7 +1554,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
             },
-            "time": "2017-07-27 10:48:10"
+            "time": "2017-07-29 11:44:24"
         },
         {
             "name": "twoquakers/tops",
@@ -1623,7 +1654,8 @@
     "stability-flags": {
         "twoquakers/tops": 20,
         "twoquakers/peanut": 20,
-        "twoquakers/peanut-wp": 20
+        "twoquakers/peanut-wp": 20,
+        "twoquakers/peanut-c5": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
