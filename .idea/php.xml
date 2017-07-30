@@ -4,7 +4,6 @@
     <include_path>
       <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-common" />
       <path value="$PROJECT_DIR$/vendor/composer" />
-      <path value="$PROJECT_DIR$/vendor/michelf/php-markdown" />
       <path value="$PROJECT_DIR$/vendor/phar-io/manifest" />
       <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
       <path value="$PROJECT_DIR$/vendor/phpspec/prophecy" />
@@ -37,6 +36,7 @@
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-wp" />
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-c5" />
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-d8" />
+      <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-qnut" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7" />

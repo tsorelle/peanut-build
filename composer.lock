@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "64abd57f4b7e7640160603c4d1a689ae",
+    "content-hash": "6ab7269f29e9776b25ac18a5173aa897",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -59,57 +59,6 @@
                 "instantiate"
             ],
             "time": "2015-06-14 21:17:01"
-        },
-        {
-            "name": "michelf/php-markdown",
-            "version": "1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-lib": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Michelf": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Michel Fortin",
-                    "email": "michel.fortin@michelf.ca",
-                    "homepage": "https://michelf.ca/",
-                    "role": "Developer"
-                },
-                {
-                    "name": "John Gruber",
-                    "homepage": "https://daringfireball.net/"
-                }
-            ],
-            "description": "PHP Markdown",
-            "homepage": "https://michelf.ca/projects/php-markdown/",
-            "keywords": [
-                "markdown"
-            ],
-            "time": "2016-10-29T18:58:20+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1554,6 +1503,40 @@
             "time": "2017-07-29 13:56:08"
         },
         {
+            "name": "twoquakers/peanut-qnut",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tsorelle/Qnut.git",
+                "reference": "73707baec120731608bc32cd0b7982bc9ab0ed6d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tsorelle/Qnut/zipball/73707baec120731608bc32cd0b7982bc9ab0ed6d",
+                "reference": "73707baec120731608bc32cd0b7982bc9ab0ed6d",
+                "shasum": ""
+            },
+            "require": {
+                "phpunit/phpunit": "6.1.3"
+            },
+            "type": "library",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Terry SoRelle",
+                    "email": "tls@2quakers.net"
+                }
+            ],
+            "description": "Peanut package of Quaker Meeting Features",
+            "support": {
+                "source": "https://github.com/tsorelle/Qnut/tree/master",
+                "issues": "https://github.com/tsorelle/Qnut/issues"
+            },
+            "time": "2017-07-30 10:51:25"
+        },
+        {
             "name": "twoquakers/peanut-wp",
             "version": "dev-master",
             "source": {
@@ -1687,7 +1670,8 @@
         "twoquakers/peanut": 20,
         "twoquakers/peanut-wp": 20,
         "twoquakers/peanut-c5": 20,
-        "twoquakers/peanut-d8": 20
+        "twoquakers/peanut-d8": 20,
+        "twoquakers/peanut-qnut": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

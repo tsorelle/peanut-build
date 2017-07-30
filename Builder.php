@@ -219,6 +219,18 @@ class Builder
         }
         print "\nProjects completed\n";
     }
+    public static function BuildPackages($projects=null)
+    {
+
+        $builder = new Builder();
+        $projects = (empty($projects)) ?
+            array_keys($builder->settings['packages']) :
+            explode(',', $projects);
+        foreach ($projects as $project) {
+            $builder->buildPackage($project);
+        }
+        print "\nProjects completed\n";
+    }
 
     public static function BuildWordpress($projects=null) {
 
@@ -517,6 +529,7 @@ class Builder
         $this->addPeanutConfigScript($zip, $pnutSrc,  'peanut-bootstrap.php');
         $this->addConfigFiles($zip,$project);
         $zip->close();
+        $this->cleanup();
         print "done\n";
     }
 
@@ -577,6 +590,53 @@ class Builder
         }
         else {
             $zip->addFile($srcFile, $targetFile);
+        }
+    }
+
+    private function buildPackage($project) {
+        print "Building distribution files for package $project...";
+        $buildDir = __DIR__;
+        $sourceRoot = $this->getSourcePath($project);
+        $moduleSub = $this->settings['modules'][$project];
+        $pkgDir = "web.root/$moduleSub/pnut/packages/$project";
+        $pkgSrcPath =  $this->concatPath($sourceRoot,$pkgDir);;
+        $pkgSettingsFile = "$pkgSrcPath/package.ini";
+        $pkgSettings = parse_ini_file($pkgSettingsFile,true);
+        if ($pkgSettings === false) {
+            print "\nSource settings for $project not found.";
+            return;
+        }
+        $version = $pkgSettings['package']['version'];
+        $dateStamp = date('Y-m-d');
+        $zipname = $this->settings['packages'][$project];
+        $zipname = "$zipname-v$version-$dateStamp.zip";
+        $templatePath = $buildDir.'/templates';
+        $readme = file_get_contents("$templatePath/package-readme.txt");
+        $readme = str_replace('{{pkg-name}}',$project,$readme);
+        $tempFile = "$templatePath/package-readme.tmp";
+        file_put_contents($tempFile,$readme);
+
+        $zip = new ZipArchive();
+        $excludes = array();
+        $zipFilePath = "$buildDir/dist/".$zipname;
+        if (file_exists($zipFilePath)) {
+            unlink($zipFilePath);
+        }
+        $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip->addFile($tempFile,'readme.txt');
+        $this->zipDirectory($zip,$pkgSrcPath,$project);
+        $zip->close();
+        $this->cleanup();
+        print "done\n";
+    }
+
+    private function cleanup($dir = 'templates') {
+        $path = __DIR__."/$dir";
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if (strlen($file) > 3 && substr($file,-4) == '.tmp') {
+                unlink("$path/$file");
+            }
         }
     }
 }
