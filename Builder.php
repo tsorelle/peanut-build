@@ -44,7 +44,8 @@ class Builder
         closedir($dir);
     }
 
-    private function copyDirectoryContents($sourceDir,$targetDir) {
+
+    private function copyDirectoryContents($sourceDir,$targetDir,$fileConfig = array(),$rootLength=0,$isEmpty=false) {
         if (!file_exists("$sourceDir")) {
             throw new \Exception("Source directory '$sourceDir' not found.");
         }
@@ -55,18 +56,29 @@ class Builder
             }
             $sourceFile = "$sourceDir/$file";
             $targetFile = "$targetDir/$file";
+            $disposition =  'include';
+            $path = substr($targetFile,$rootLength);
+            if (!empty($fileConfig[$path])) {
+                $disposition= $fileConfig[$path];
+            }
             if (is_dir($sourceFile)) {
-                if (!file_exists($targetFile)) {
-                    @mkdir($targetFile);
+                if ($disposition != 'exclude') {
+                    if (!file_exists($targetFile)) {
+                        @mkdir($targetFile);
+                    }
+                    $this->copyDirectoryContents($sourceFile,$targetFile, $fileConfig, $rootLength, ($disposition == 'empty'));
                 }
-                $this->copyDirectoryContents($sourceFile,$targetFile);
             }
             else {
-                $this->copyFile($sourceFile,$targetFile);
+                if ($isEmpty && $file != 'readme.txt' && $file != '.htaccess') {
+                    $disposition = 'exclude';
+                }
+                if ($disposition=='include') {
+                    $this->copyFile($sourceFile,$targetFile);
+                }
             }
         }
     }
-
     private $protectedDirs = array();
 
     private function delTree($dir)
@@ -246,6 +258,7 @@ class Builder
     }
 
     private function fixReferencePaths($project, $appPath) {
+        /*
         $vmDir = $this->concatPath($appPath,'mvvm/vm');
         $moduleSub =  '/'.$this->settings['modules'][$project].'/';
         $files = scandir($vmDir);
@@ -267,6 +280,7 @@ class Builder
                 file_put_contents($filePath,$lines);
             }
         }
+        */
     }
 
     private function getIniSetting($line) {
@@ -437,7 +451,8 @@ class Builder
 
         $this->makeDir($appPath, 'make');
         $appSrc = $this->concatPath($pnutSourcePath,'application');
-        $this->copyDirectoryContents($appSrc, $appPath);
+        $rootLen = strlen($appPath) + 1;
+        $this->copyDirectoryContents($appSrc, $appPath,$this->settings['application-files'],$rootLen);
         $this->fixReferencePaths($project, $appPath);
 
         $moduleSource = $this->concatPath($pnutSourcePath,'modules/pnut');
