@@ -70,7 +70,10 @@ class Builder
                 }
             }
             else {
-                if ($isEmpty && $file != 'readme.txt' && $file != '.htaccess') {
+                if ($disposition == 'required' || $file == 'readme.txt' || $file != '.htaccess') {
+                    $disposition = 'include';
+                }
+                else if ( $isEmpty ) {
                     $disposition = 'exclude';
                 }
                 if ($disposition=='include') {
@@ -257,30 +260,24 @@ class Builder
 
     }
 
-    private function fixReferencePaths($project, $appPath) {
-        /*
-        $vmDir = $this->concatPath($appPath,'mvvm/vm');
-        $moduleSub =  '/'.$this->settings['modules'][$project].'/';
-        $files = scandir($vmDir);
-        foreach ($files as $fileName) {
-            if (substr(strtolower($fileName),-3) == '.ts') {
-                $filePath = $this->concatPath($vmDir,$fileName);
-                $lines = file($filePath);
-                if (empty($lines)) {
-                    print "No file: $filePath";
-                    continue;
-                }
-                $lineCount = sizeof($lines);
-                for ($i=0; $i < $lineCount; $i++) {
-                    $line = $lines[$i];
-                    if (strpos($line,'<reference path')) {
-                        $lines[$i] = str_replace("/modules/", $moduleSub,$line);
-                    }
-                }
-                file_put_contents($filePath,$lines);
-            }
+    private function fixReferencePaths($filePath, $outFile, $moduleSub) {
+        $lines = file($filePath);
+        $result = array();
+        if (empty($lines)) {
+            print "No file: $filePath";
+            return;
         }
-        */
+        $lineCount = sizeof($lines);
+        for ($i = 0; $i < $lineCount; $i++) {
+            $line = $lines[$i];
+            if (strpos($line, '<reference path')) {
+                $lines[$i] = str_replace('/modules/', $moduleSub, $line);
+                //$fixed = str_replace('/modules/', $moduleSub, $line);
+                // $line = $fixed;
+            }
+            // $result[] = $line;
+        }
+        file_put_contents($outFile, $lines);
     }
 
     private function getIniSetting($line) {
@@ -303,13 +300,14 @@ class Builder
     private function addConfigFiles(ZipArchive $zip, $project) {
         $values = parse_ini_file(__DIR__."/$project-dist.ini",true)["values"];
         $templatePath = __DIR__.'/templates';
+        $tmpFilePath = __DIR__.'/tmp';
         $settings = file_get_contents("$templatePath/settings.ini");
         foreach ($values as $key=>$value) {
             $settings = str_replace('{{'.$key.'}}',$value,$settings);
         }
-        file_put_contents("$templatePath/settings.tmp",$settings);
+        file_put_contents("$tmpFilePath/settings.tmp",$settings);
         $configPath = 'web.root/application/config';
-        $zip->addFile("$templatePath/settings.tmp","$configPath/settings.ini");
+        $zip->addFile("$tmpFilePath/settings.tmp","$configPath/settings.ini");
         $zip->addFile("$templatePath/database.ini","$configPath/database.ini");
         $zip->addFile("$templatePath/viewmodels.ini","$configPath/viewmodels.ini");
 
@@ -453,7 +451,8 @@ class Builder
         $appSrc = $this->concatPath($pnutSourcePath,'application');
         $rootLen = strlen($appPath) + 1;
         $this->copyDirectoryContents($appSrc, $appPath,$this->settings['application-files'],$rootLen);
-        $this->fixReferencePaths($project, $appPath);
+        //todo: chek if this needed.
+        //$this->fixReferencePaths($project, $appPath);
 
         $moduleSource = $this->concatPath($pnutSourcePath,'modules/pnut');
         $moduleTarget = $this->concatPath($modulePath, 'pnut');
@@ -534,15 +533,23 @@ class Builder
         $topsSrc = $this->getSourcePath('tops');
         $pnutSrc = $this->getSourcePath('pnut');
         $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
+        $pnutTestRoot = realpath("$pnutSrc/modules/src/test");
         if ($pnutSrcRoot === false) {
             print "\nPeanut root path not found.\n";
             return;
         }
+        $peanutAppSrc = $this->getApplicationPath('pnut');
+        $appExcludes = array_merge(
+            $this->getExcludedFiles( $this->settings['application-files'],'web.root/application'),
+            $this->getExcludedFiles( $this->settings['tsfix'],'web.root/application'));
+        $this->zipDirectory($zip,$peanutAppSrc,"web.root/application",$appExcludes);
+        $this->addAppTests($zip,$peanutAppSrc,'/'.$this->settings['modules'][$project].'/');
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
+        $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
         $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
-        $this->addPeanutConfigScript($zip, $pnutSrc,  'settings.php');
-        $this->addPeanutConfigScript($zip, $pnutSrc,  'peanut-bootstrap.php');
         $this->addConfigFiles($zip,$project);
+        $this->zipDirectory($zip,realpath(__DIR__.'/common/js'),$distini['locations']['js']);
+        $this->zipDirectory($zip,realpath(__DIR__.'/common/typings'),"web.root/$modulePath/typings");
         $zip->close();
         $this->cleanup();
         print "done\n";
@@ -557,6 +564,19 @@ class Builder
         $zip->addFile($srcFile, $targetFile);
     }
 
+    private function getExcludedFiles(array $config, $prefix='') {
+        $result = array();
+        if (!empty($prefix)) {
+            $prefix .= '/';
+        }
+        foreach ($config as $key=>$value) {
+            if (empty($falue)) {
+                $result[] = $prefix.$key;
+            }
+        }
+        return $result;
+    }
+    
     private function zipDirectory(ZipArchive $zip, $srcPath, $directory,array $excludes=array()) {
         $zip->addEmptyDir($directory);
         $topfiles = scandir($srcPath); //"$srcPath/$directory");
@@ -586,7 +606,7 @@ class Builder
      * @param $zip
      * @param $excludes
      */
-    private function addFromSource($file, $sourceRoot, $zip, $excludes=array(), $targetFile=null) {
+    private function addFromSource($file, $sourceRoot,ZipArchive $zip, $excludes=array(), $targetFile=null) {
         $file = str_replace('\\', '/', $file);
         if ($targetFile == null) {
             $targetFile = $file;
@@ -645,7 +665,7 @@ class Builder
         print "done\n";
     }
 
-    private function cleanup($dir = 'templates') {
+    private function cleanup($dir = 'tmp') {
         $path = __DIR__."/$dir";
         $files = scandir($path);
         foreach ($files as $file) {
@@ -654,4 +674,16 @@ class Builder
             }
         }
     }
+
+    private function addAppTests(ZipArchive $zip,$peanutAppSrc,$moduleSub) {
+        $fixFiles = array_keys($this->settings['tsfix']);
+        foreach ($fixFiles as $file) {
+            $tempFile = __DIR__."/tmp/".str_replace('/','-',$file).'.tmp';
+            $targetFile = "web.root/application/$file";
+            $srcFile = "$peanutAppSrc/$file";
+            $this->fixReferencePaths("$peanutAppSrc/$file",$tempFile,$moduleSub);
+            $zip->addFile($tempFile,$targetFile);
+        }
+    }
+
 }
