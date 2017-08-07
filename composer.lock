@@ -1477,12 +1477,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-drupal8.git",
-                "reference": "a5c38156fef61c654153d54a7b7bcb37d7d97a77"
+                "reference": "ed9c54f8c89167474aa9ad346d94565afbc570f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/a5c38156fef61c654153d54a7b7bcb37d7d97a77",
-                "reference": "a5c38156fef61c654153d54a7b7bcb37d7d97a77",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/ed9c54f8c89167474aa9ad346d94565afbc570f3",
+                "reference": "ed9c54f8c89167474aa9ad346d94565afbc570f3",
                 "shasum": ""
             },
             "type": "library",
@@ -1500,7 +1500,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-drupal8/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-drupal8/issues"
             },
-            "time": "2017-08-07 13:55:51"
+            "time": "2017-08-07 15:13:32"
         },
         {
             "name": "twoquakers/peanut-qnut",
@@ -1542,12 +1542,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
-                "reference": "d4dc359e96fb83cf21065998275525dfed57a23e"
+                "reference": "ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/d4dc359e96fb83cf21065998275525dfed57a23e",
-                "reference": "d4dc359e96fb83cf21065998275525dfed57a23e",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044",
+                "reference": "ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044",
                 "shasum": ""
             },
             "require": {
@@ -1568,7 +1568,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
             },
-            "time": "2017-08-07 12:06:51"
+            "time": "2017-08-07 15:30:37"
         },
         {
             "name": "twoquakers/tops",

@@ -613,7 +613,7 @@ class Builder
         }
         $srcFile = realpath("$sourceRoot/$file");
         if ($srcFile === FALSE) {
-            exit ("\nWARNING: Source file '$sourceRoot/$file' not found.");
+            throw new \Exception("\nWARNING: Source file '$sourceRoot/$file' not found.");
         }
 
         if (is_dir($srcFile)) {
