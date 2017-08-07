@@ -297,8 +297,7 @@ class Builder
         return $result;
     }
 
-    private function addConfigFiles(ZipArchive $zip, $project) {
-        $values = parse_ini_file(__DIR__."/$project-dist.ini",true)["values"];
+    private function addConfigFiles(ZipArchive $zip, array $values) {
         $templatePath = __DIR__.'/templates';
         $tmpFilePath = __DIR__.'/tmp';
         $settings = file_get_contents("$templatePath/settings.ini");
@@ -489,13 +488,8 @@ class Builder
     private function buildZip($project) {
         print "Building distribution files for $project...";
         $sourceRoot = $this->getSourcePath($project);
-        $projSettingsFile = $sourceRoot."\web.root\application\config\settings.ini";
-        $srcSettings = parse_ini_file($projSettingsFile,true);
-        if ($srcSettings === false) {
-            print "\nSource settings for $project not found.";
-            return;
-        }
-        $version = $srcSettings['peanut']['applicationVersionNumber'];
+        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+        $version = $distini['values']['appVersion'];
         $dateStamp = date('Y-m-d');
         $zipname = $this->settings['distribution'][$project];
         $zipname = "$zipname-v$version-$dateStamp.zip";
@@ -504,7 +498,7 @@ class Builder
         $zip = new ZipArchive();
         $buildDir = __DIR__;
 
-        $distini = parse_ini_file("$buildDir/$project-dist.ini",true);
+
         $includes = array();
         $excludes = array();
         foreach ($distini['files'] as $key => $value) {
@@ -547,9 +541,11 @@ class Builder
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
         $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
-        $this->addConfigFiles($zip,$project);
-        $this->zipDirectory($zip,realpath(__DIR__.'/common/js'),$distini['locations']['js']);
-        $this->zipDirectory($zip,realpath(__DIR__.'/common/typings'),"web.root/$modulePath/typings");
+        $this->addConfigFiles($zip,$distini["values"]);
+        if (!empty($distini['js'])) {
+            $this->addJsLibraries($zip, $distini['js']);
+        }
+        $this->zipDirectory($zip,realpath(__DIR__.'/files/typings'),"web.root/$modulePath/typings");
         $zip->close();
         $this->cleanup();
         print "done\n";
@@ -683,6 +679,30 @@ class Builder
             $srcFile = "$peanutAppSrc/$file";
             $this->fixReferencePaths("$peanutAppSrc/$file",$tempFile,$moduleSub);
             $zip->addFile($tempFile,$targetFile);
+        }
+    }
+
+    private function partialNameInArray($name, $list) {
+        if ($name != '.' && $name != '..') {
+            foreach ($list as $partial) {
+                if (strpos($name, $partial) === 0) {
+                    return $partial;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function addJsLibraries(ZipArchive $zip, array $config) {
+        $srcPath = realpath(__DIR__.'/files/js');
+        $names = array_keys($config);
+        $files = scandir($srcPath);
+        foreach ($files as $fileName) {
+            $key = $this->partialNameInArray($fileName,$names);
+            if ($key !== false) {
+                $path = $config[$key];
+                $zip->addFile("$srcPath/$fileName","web.root/$path/$fileName");
+            }
         }
     }
 
