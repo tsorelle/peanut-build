@@ -260,16 +260,16 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "3.2.1",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "183824db76118b9dddffc7e522b91fa175f75119"
+                "reference": "4aada1f93c72c35e22fb1383b47fee43b8f1d157"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/183824db76118b9dddffc7e522b91fa175f75119",
-                "reference": "183824db76118b9dddffc7e522b91fa175f75119",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/4aada1f93c72c35e22fb1383b47fee43b8f1d157",
+                "reference": "4aada1f93c72c35e22fb1383b47fee43b8f1d157",
                 "shasum": ""
             },
             "require": {
@@ -301,7 +301,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2017-08-04T20:55:59+00:00"
+            "time": "2017-08-08T06:39:58+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -1446,12 +1446,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-concrete5.git",
-                "reference": "b03f90a52a633609b6cb1048702a2ff1db1d0af6"
+                "reference": "11a725a4a7953f9394eecd7cad735907687570cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-concrete5/zipball/b03f90a52a633609b6cb1048702a2ff1db1d0af6",
-                "reference": "b03f90a52a633609b6cb1048702a2ff1db1d0af6",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-concrete5/zipball/11a725a4a7953f9394eecd7cad735907687570cc",
+                "reference": "11a725a4a7953f9394eecd7cad735907687570cc",
                 "shasum": ""
             },
             "type": "library",
@@ -1469,7 +1469,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-concrete5/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-concrete5/issues"
             },
-            "time": "2017-07-29 13:39:46"
+            "time": "2017-08-10 18:04:53"
         },
         {
             "name": "twoquakers/peanut-d8",
@@ -1477,12 +1477,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-drupal8.git",
-                "reference": "ed9c54f8c89167474aa9ad346d94565afbc570f3"
+                "reference": "a0368c8a482c22ffef2f763a6a1bf2b1319b3d76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/ed9c54f8c89167474aa9ad346d94565afbc570f3",
-                "reference": "ed9c54f8c89167474aa9ad346d94565afbc570f3",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/a0368c8a482c22ffef2f763a6a1bf2b1319b3d76",
+                "reference": "a0368c8a482c22ffef2f763a6a1bf2b1319b3d76",
                 "shasum": ""
             },
             "type": "library",
@@ -1500,7 +1500,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-drupal8/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-drupal8/issues"
             },
-            "time": "2017-08-07 15:13:32"
+            "time": "2017-08-10 13:33:24"
         },
         {
             "name": "twoquakers/peanut-qnut",
