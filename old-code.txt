@@ -1,0 +1,124 @@
+
+        /*
+         *   From ini update from updateWordPress, could be useful in future.
+         */
+
+             private function getIniSetting($line) {
+                 $result = new \stdClass();
+                 $result->commented = substr($line,0,1) == ';';
+                 if ($result->commented) {
+                     $line=trim(substr($line,1));
+                 }
+                 $parts = explode('=',$line);
+                 if (sizeof($parts) != 2) {
+                    return false;
+                 }
+                 else {
+                     $result->key = $parts[0];
+                     $result->value = $parts[1];
+                 }
+                 return $result;
+             }
+
+
+
+
+
+        $appPath = $this->getApplicationPath($project);
+        $themesIni = $this->concatPath($appPath,'config/themes.ini');
+        if (!file_exists($themesIni)) {
+            $srcConfigPath = $this->concatPath($sourcePath,'application/config/themes.ini');
+            copy($srcConfigPath, $themesIni );
+        }
+
+        $iniFile = $this->concatPath($appPath,'config/settings.ini');
+        if (file_exists($iniFile)) {
+            $lines = file($iniFile);
+            $count = sizeof($lines);
+            $themeSectionFound = false;
+            $autoloadSectionFound = false;
+            $autoloadFound = false;
+            $modulePathFound = false;
+            $changed = false;
+            $modulePathKey= 'modulePath';
+            $modulePathValue= 'wp-content/plugins/peanut';
+            $autoloadKey = 'Tops\wordpress';
+            $autoloadValue = '[pnut-src]\wordpress';
+            $section = '';
+            $newFile = array();
+
+            for ($i=0;$i<=$count;$i++) {
+                $line = $i == $count ? '(eof)' : trim($lines[$i]);
+                if (substr($line,0,1) == '[') {
+                    switch ($line) {
+                        case '[autoload]' :
+                            $autoloadSectionFound = true;
+                            break;
+                    }
+                    switch($section) {
+                        case '[peanut]' :
+                            if (!$modulePathFound) {
+                                $newFile[] = "$modulePathKey=$modulePathValue";
+                                $changed = true;
+                            }
+                            break;
+                        case '[autoload]' :
+                            if (!$autoloadFound) {
+                                $newFile[] = "$autoloadKey=$autoloadValue";
+                                $changed = true;
+                            }
+                            break;
+                    }
+                    $section = $line;
+                }
+                else {
+                    switch($section) {
+                        case '[peanut]' :
+                            if (!$modulePathFound) {
+                                $setting = $this->getIniSetting($line);
+                                if ($setting !== FALSE) {
+                                    if ($setting->key == $modulePathKey) {
+                                        $modulePathFound = TRUE;
+                                        if ($setting->commented || $setting->value !== $modulePathValue) {
+                                            $line = "$modulePathKey=$modulePathValue";
+                                            $changed = TRUE;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case '[autoload]' :
+                            if (!$autoloadFound) {
+                                $setting = $this->getIniSetting($line);
+                                if ($setting !== FALSE) {
+                                    if ($setting->key == $autoloadKey) {
+                                        if ($setting->commented || $setting->value !== $modulePathValue) {
+                                            $line = "$autoloadKey=$autoloadValue";
+                                            $autoloadFound = TRUE;
+                                            $changed = TRUE;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+                if ($line != '(eof)') {
+                    $newFile[] = $line;
+                }
+            }
+            if (!$autoloadSectionFound) {
+                $newFile[] = '[autoload]';
+                $newFile[]='; register autoload namespaces';
+                $newFile[]='; example: Quaker=\'application/src/quaker-meeting\'';
+                $newFile[]='Tops\wordpress=[pnut-src]\wordpress';
+                $changed = true;
+            }
+            if ($changed) {
+                file_put_contents($iniFile,implode("\n",$newFile));
+            }
+        }
+        else {
+            copy($sourcePath.'/web.root/application/config/settings.ini', $appPath.'/config/settings.ini');
+        }

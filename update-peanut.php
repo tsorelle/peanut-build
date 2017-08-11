@@ -8,4 +8,4 @@
 namespace Peanut;
 
 require_once __DIR__.'\Builder.php';
-Builder::Build();
+Builder::UpdatePeanutProjects();
