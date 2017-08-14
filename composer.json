@@ -16,6 +16,10 @@
     },
     {
       "type": "vcs",
+      "url": "https://github.com/tsorelle/tops-db"
+    },
+    {
+      "type": "vcs",
       "url": "https://github.com/tsorelle/peanut"
     },
     {
@@ -37,6 +41,7 @@
   ],
   "require": {
     "twoquakers/tops" : "dev-master",
+    "twoquakers/tops-db" : "dev-master",
     "twoquakers/peanut" : "dev-master",
     "twoquakers/peanut-wp" : "dev-master",
     "twoquakers/peanut-c5" : "dev-master",

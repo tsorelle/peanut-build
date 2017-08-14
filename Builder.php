@@ -76,6 +76,7 @@ class Builder
 
         $modulePath = $this->settings['modules'][$project];
         $topsSrc = $this->getSourcePath('tops');
+        $topsDbSrc = $this->getSourcePath('topsdb');
         $pnutSrc = $this->getSourcePath('pnut');
         $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
         $pnutTestRoot = realpath("$pnutSrc/modules/src/test");
@@ -83,13 +84,15 @@ class Builder
             print "\nPeanut root path not found.\n";
             return;
         }
-        $peanutAppSrc = $this->getApplicationPath('pnut');
+        $projectRoot = $this->getProjectRoot($project);
+        $peanutAppSrc = $this->concatPath($projectRoot,'application');
         $appExcludes = array_merge(
-            $this->getExcludedFiles( $this->settings['application-files'],'web.root/application'),
-            $this->getExcludedFiles( $this->settings['tsfix'],'web.root/application'));
+            $this->parseIniList($this->settings['application-files'],false, 'web.root/application'),
+            $this->parseIniList( $this->settings['tsfix'],false,'web.root/application'));
         $this->zipDirectory($zip,$peanutAppSrc,"web.root/application",$appExcludes);
         $this->addAppTests($zip,$peanutAppSrc,'/'.$this->settings['modules'][$project].'/');
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
+        $this->zipDirectory($zip,"$topsDbSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
         $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
         $this->addConfigFiles($zip,$distini["values"]);
@@ -117,6 +120,7 @@ class Builder
         print "Building distribution files for package $project...";
         $buildDir = __DIR__;
         $sourceRoot = $this->getSourcePath($project);
+
         $moduleSub = $this->settings['modules'][$project];
         $pkgDir = "web.root/$moduleSub/pnut/packages/$project";
         $pkgSrcPath =  $this->concatPath($sourceRoot,$pkgDir);;
@@ -131,20 +135,41 @@ class Builder
         $zipname = $this->settings['packages'][$project];
         $zipname = "$zipname-v$version-$dateStamp.zip";
         $templatePath = $buildDir.'/templates';
-        $readme = file_get_contents("$templatePath/package-readme.txt");
-        $readme = str_replace('{{pkg-name}}',$project,$readme);
-        $tempFile = "$templatePath/package-readme.tmp";
-        file_put_contents($tempFile,$readme);
+
+        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+
+        $includes = array();
+        $excludes = array();
+        foreach ($distini['files'] as $key => $value) {
+            if (empty($value)) {
+                $excludes[] = str_replace('\\','/',$key);
+            }
+            else {
+                $includes[] = str_replace('\\','/',$key);
+            }
+        }
 
         $zip = new ZipArchive();
-        $excludes = array();
         $zipFilePath = "$buildDir/dist/".$zipname;
         if (file_exists($zipFilePath)) {
             unlink($zipFilePath);
         }
         $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $zip->addFile($tempFile,'readme.txt');
-        $this->zipDirectory($zip,$pkgSrcPath,$project);
+        $this->zipDirectory($zip,$pkgSrcPath,"peanut-files/pnut/packages/$project");
+
+        foreach ($distini['rename'] as $file=>$target) {
+            $this->addFromSource($file, $sourceRoot, $zip, $excludes,$target);
+        }
+
+        foreach ($includes as $file) {
+            $this->addFromSource("other-files/$file", $sourceRoot, $zip, $excludes);
+        }
+
+        foreach ($distini['libraries'] as $lib => $path) {
+            $libPath = $this->getSourcePath($lib);
+            $this->zipDirectory($zip,$libPath,"peanut-files/$path");
+        }
+
         $zip->close();
         $this->cleanup();
         print "done\n";
@@ -178,15 +203,14 @@ class Builder
     private function updateTops($project)
     {
         print "Updating Tops for $project...";
-        $modulePath = $this->getModulePath($project);
-        $topsSourcePath = $this->getSourcePath('tops');
-        $targetPhpDir = $this->concatPath($modulePath, "src");
-        if (!file_exists($targetPhpDir)) {
-            mkdir($targetPhpDir);
-        }
-        $targetTops = $this->concatPath($targetPhpDir, "tops");
-        $this->makeDir($targetTops);
-        $this->copyDirectoryContents($topsSourcePath, $targetTops);
+        $source = $this->getSourcePath('tops');
+        $modulePath   = $this->makeModulePath($project);
+        $target = $this->makePath($modulePath, "src/tops");
+
+        $this->copyDirectoryContents($source, $target);
+        $source = $this->getSourcePath('topsdb');
+        $this->copyDirectoryContents($source, $target);
+
         print "done\n";
     }
 
@@ -208,13 +232,16 @@ class Builder
             return;
         }
         print "Updating Peanut for $project...";
-        $modulePath = $this->getModulePath($project);
-        $this->makeDir($modulePath, 'make');
-
         $pnutSourcePath = $this->getSourcePath('pnut');
+        $modulePath = $this->makeModulePath($project);
+        $projectRoot = $this->getProjectRoot($project);
+        $appSource = "$pnutSourcePath/application";
+        $appTarget = $this->makePath($projectRoot,'application');
         $moduleSource = $this->concatPath($pnutSourcePath,'modules/pnut');
-        $moduleTarget = $this->concatPath($modulePath, 'pnut');
-        $this->makeDir($moduleTarget, 'make');
+        $moduleTarget = $this->makePath($modulePath, 'pnut');
+        $peanutPhpSource=$this->concatPath($pnutSourcePath,"modules/src/peanut");
+        $peanutPhpTarget=$this->makePath($modulePath,"src/peanut");
+
         $pnutDirs = $this->settings['pnut-dirs'];
         foreach ($pnutDirs as $dir => $mode) {
             $target = $this->concatPath($moduleTarget, $dir);
@@ -222,6 +249,13 @@ class Builder
             $this->makeDir($target,$mode);
             $this->copyDirectoryContents($source, $target);
         }
+
+        $appIncludes = $this->parseIniList($this->settings['application-files'],true);
+        foreach ($appIncludes as $targetFile) {
+            $this->copyFilePath($appSource,$appTarget,$targetFile);
+        }
+
+        $this->copyDirectoryContents($peanutPhpSource,$peanutPhpTarget);
         print "done\n";
     }
 
@@ -268,6 +302,36 @@ class Builder
         }
         copy($src,$dst);
     }
+
+    private function copyFilePath($srcPath,$dstPath,$filePath,$overwrite=true) {
+        if (!$overwrite && file_exists("$dstPath/$filePath")) {
+            return false;
+        }
+        $filePath = str_replace('\\','/',$filePath);
+        $subdirs = explode('/',$filePath);
+        array_pop($subdirs); // remove filename;
+        $this->makePathFromArray($dstPath,$subdirs);
+        copy("$srcPath/$filePath", "$dstPath/$filePath");
+        return true;
+    }
+
+
+    private function makePath($root, $subpath) {
+        $subpath = str_replace('\\','/',$subpath);
+        $subdirs = explode('/',$subpath);
+        $this->makePathFromArray($root,$subdirs);
+        return $this->concatPath($root,$subpath);
+    }
+
+    private function makePathFromArray($root, array $subdirs) {
+        foreach ($subdirs as $subdir) {
+            $new = "$root/$subdir";
+            @mkdir($new);
+            $root = $new;
+        }
+    }
+
+
     private function copyDir($src,$dst)
     {
         $dir = opendir($src);
@@ -381,10 +445,13 @@ class Builder
         $moduleSub = $this->settings['modules'][$project];
         return $this->concatPath($projectRoot,$moduleSub);
     }
-    private function getApplicationPath($project) {
+
+    private function makeModulePath($project) {
         $projectRoot = $this->getProjectRoot($project);
-        return $this->concatPath($projectRoot,'application');
+        $moduleSub = $this->settings['modules'][$project];
+        return $this->makePath($projectRoot,$moduleSub);
     }
+
     private function getSourcePath($lib,$sub='') {
         $path = $this->settings['vendor'][$lib];
         $rawpath = __DIR__."/vendor/$path";
@@ -393,7 +460,8 @@ class Builder
         }
         $path = realpath($rawpath);
         if ($path === false) {
-            return false;
+            // return false;
+            throw new \Exception("Sourc path '$path' not found.");
         }
         if (strpos($path,':') == 1) {
             $path = substr($path,2);
@@ -515,13 +583,13 @@ class Builder
             }
         }
     }
-    private function getExcludedFiles(array $config, $prefix='') {
+    private function parseIniList(array $config, $included, $prefix='') {
         $result = array();
         if (!empty($prefix)) {
             $prefix .= '/';
         }
         foreach ($config as $key=>$value) {
-            if (empty($falue)) {
+            if (empty($value == !$included)) {
                 $result[] = $prefix.$key;
             }
         }
@@ -536,5 +604,10 @@ class Builder
             }
         }
         return false;
+    }
+    private function checkDir($path) {
+        if (!file_exists($path)) {
+            throw new \Exception("Path '$path' not found. Must pre-install peanut files from distribution zip.");
+        }
     }
 }

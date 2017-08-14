@@ -36,6 +36,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut-qnut" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/twoquakers/tops-db" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart/assert" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -77,6 +78,7 @@
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-qnut" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
+          <root url="file://$MODULE_DIR$/vendor/twoquakers/tops-db" />
           <root url="file://$MODULE_DIR$/vendor/webmozart/assert" />
         </CLASSES>
         <SOURCES>
@@ -114,6 +116,7 @@
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-qnut" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/peanut-wp" />
           <root url="file://$MODULE_DIR$/vendor/twoquakers/tops" />
+          <root url="file://$MODULE_DIR$/vendor/twoquakers/tops-db" />
           <root url="file://$MODULE_DIR$/vendor/webmozart/assert" />
         </SOURCES>
       </library>

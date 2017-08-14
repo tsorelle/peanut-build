@@ -37,6 +37,7 @@
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-c5" />
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-d8" />
       <path value="$PROJECT_DIR$/vendor/twoquakers/peanut-qnut" />
+      <path value="$PROJECT_DIR$/vendor/twoquakers/tops-db" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7" />

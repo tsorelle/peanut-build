@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ab7269f29e9776b25ac18a5173aa897",
+    "content-hash": "1593c148800d68db090e808dc05942a7",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1411,12 +1411,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/Peanut.git",
-                "reference": "c7cb6f76b2d396599033c680b8c697e3e257fc29"
+                "reference": "762425d76408098348b19d3ece1d0c6325414321"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/Peanut/zipball/c7cb6f76b2d396599033c680b8c697e3e257fc29",
-                "reference": "c7cb6f76b2d396599033c680b8c697e3e257fc29",
+                "url": "https://api.github.com/repos/tsorelle/Peanut/zipball/762425d76408098348b19d3ece1d0c6325414321",
+                "reference": "762425d76408098348b19d3ece1d0c6325414321",
                 "shasum": ""
             },
             "require": {
@@ -1438,7 +1438,7 @@
                 "source": "https://github.com/tsorelle/Peanut/tree/master",
                 "issues": "https://github.com/tsorelle/Peanut/issues"
             },
-            "time": "2017-08-06 12:33:26"
+            "time": "2017-08-14 12:07:10"
         },
         {
             "name": "twoquakers/peanut-c5",
@@ -1508,12 +1508,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/Qnut.git",
-                "reference": "587d74fa5e282a56486d38b3c1ee270139f7edd4"
+                "reference": "5faa9bd17ab37b2e0ef65aeb2aa7e78591691498"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/Qnut/zipball/587d74fa5e282a56486d38b3c1ee270139f7edd4",
-                "reference": "587d74fa5e282a56486d38b3c1ee270139f7edd4",
+                "url": "https://api.github.com/repos/tsorelle/Qnut/zipball/5faa9bd17ab37b2e0ef65aeb2aa7e78591691498",
+                "reference": "5faa9bd17ab37b2e0ef65aeb2aa7e78591691498",
                 "shasum": ""
             },
             "require": {
@@ -1534,7 +1534,7 @@
                 "source": "https://github.com/tsorelle/Qnut/tree/master",
                 "issues": "https://github.com/tsorelle/Qnut/issues"
             },
-            "time": "2017-07-31 12:13:50"
+            "time": "2017-08-12 11:55:48"
         },
         {
             "name": "twoquakers/peanut-wp",
@@ -1542,18 +1542,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
-                "reference": "ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044"
+                "reference": "9fcdb3d8c5b0881fa57927b5bf91646903d5582d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044",
-                "reference": "ec59fedfd87092c0d97cc6eaa4fbc8efcdca8044",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/9fcdb3d8c5b0881fa57927b5bf91646903d5582d",
+                "reference": "9fcdb3d8c5b0881fa57927b5bf91646903d5582d",
                 "shasum": ""
             },
             "require": {
                 "phpunit/phpunit": "6.1.3"
             },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tops\\": "web.root/wp-content/plugins/peanut/src/tops",
+                    "Tops\\wordpress\\": "web.root/wp-content/plugins/peanut/src/wordpress",
+                    "Peanut\\": "web.root/wp-content/plugins/peanut/src/peanut"
+                }
+            },
             "license": [
                 "GPL-3.0+"
             ],
@@ -1568,7 +1575,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
             },
-            "time": "2017-08-07 15:30:37"
+            "time": "2017-08-14 14:51:32"
         },
         {
             "name": "twoquakers/tops",
@@ -1576,12 +1583,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/tops.git",
-                "reference": "74f88363dafbf171055b20dc423e9556eb975d66"
+                "reference": "c90b4547fc18852f2620fc0456577b47bea1d294"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/tops/zipball/74f88363dafbf171055b20dc423e9556eb975d66",
-                "reference": "74f88363dafbf171055b20dc423e9556eb975d66",
+                "url": "https://api.github.com/repos/tsorelle/tops/zipball/c90b4547fc18852f2620fc0456577b47bea1d294",
+                "reference": "c90b4547fc18852f2620fc0456577b47bea1d294",
                 "shasum": ""
             },
             "require": {
@@ -1609,7 +1616,49 @@
                 "source": "https://github.com/tsorelle/tops/tree/master",
                 "issues": "https://github.com/tsorelle/tops/issues"
             },
-            "time": "2017-08-02 13:45:29"
+            "time": "2017-08-11 11:23:50"
+        },
+        {
+            "name": "twoquakers/tops-db",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tsorelle/tops-db.git",
+                "reference": "e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tsorelle/tops-db/zipball/e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2",
+                "reference": "e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2",
+                "shasum": ""
+            },
+            "require": {
+                "phpunit/phpunit": "6.1.3",
+                "twoquakers/tops": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tops\\db\\": "lib/db",
+                    "TwoQuakers\\testing\\": "tests/lib",
+                    "TestPackage\\": "tests/pnut/packages/test-package/src"
+                }
+            },
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Terry SoRelle",
+                    "email": "tls@2quakers.net"
+                }
+            ],
+            "description": "PHP Library for simple Database",
+            "support": {
+                "source": "https://github.com/tsorelle/tops-db/tree/master",
+                "issues": "https://github.com/tsorelle/tops-db/issues"
+            },
+            "time": "2017-08-11 19:51:20"
         },
         {
             "name": "webmozart/assert",
@@ -1667,6 +1716,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "twoquakers/tops": 20,
+        "twoquakers/tops-db": 20,
         "twoquakers/peanut": 20,
         "twoquakers/peanut-wp": 20,
         "twoquakers/peanut-c5": 20,
