@@ -79,6 +79,8 @@ class Builder
         $topsDbSrc = $this->getSourcePath('topsdb');
         $pnutSrc = $this->getSourcePath('pnut');
         $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
+        $peanutPhpSource=$this->concatPath($pnutSrc,"modules/src/peanut");
+
         $pnutTestRoot = realpath("$pnutSrc/modules/src/test");
         if ($pnutSrcRoot === false) {
             print "\nPeanut root path not found.\n";
@@ -95,6 +97,7 @@ class Builder
         $this->zipDirectory($zip,"$topsDbSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
         $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
+        $this->zipDirectory($zip,$peanutPhpSource,"web.root/$modulePath/src/peanut");
         $this->addConfigFiles($zip,$distini["values"]);
         if (!empty($distini['js'])) {
             $this->addJsLibraries($zip, $distini['js']);
@@ -252,7 +255,14 @@ class Builder
 
         $appIncludes = $this->parseIniList($this->settings['application-files'],true);
         foreach ($appIncludes as $targetFile) {
-            $this->copyFilePath($appSource,$appTarget,$targetFile);
+            if (substr($targetFile,-1) == '*') {
+                $targetFile = substr($targetFile,0,strlen($targetFile)-2);
+                $this->makePath($appTarget,$targetFile);
+                $this->copyDirectoryContents("$appSource/$targetFile","$appTarget/$targetFile");
+            }
+            else {
+                $this->copyFilePath($appSource, $appTarget, $targetFile);
+            }
         }
 
         $this->copyDirectoryContents($peanutPhpSource,$peanutPhpTarget);
@@ -349,6 +359,13 @@ class Builder
         }
         closedir($dir);
     }
+
+    private function copyDirectory($sourceDir,$targetDir,$fileConfig = array(),$rootLength=0,$isEmpty=false) {
+       // $this->makePath()
+
+    }
+
+
     private function copyDirectoryContents($sourceDir,$targetDir,$fileConfig = array(),$rootLength=0,$isEmpty=false) {
         if (!file_exists("$sourceDir")) {
             throw new \Exception("Source directory '$sourceDir' not found.");

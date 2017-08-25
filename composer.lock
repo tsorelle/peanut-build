@@ -620,12 +620,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "8c0bca4db90bb0a0b400ad8e90fee3210081701d"
+                "reference": "9a02332089ac48e704c70f6cefed30c224e3c0b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/8c0bca4db90bb0a0b400ad8e90fee3210081701d",
-                "reference": "8c0bca4db90bb0a0b400ad8e90fee3210081701d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/9a02332089ac48e704c70f6cefed30c224e3c0b0",
+                "reference": "9a02332089ac48e704c70f6cefed30c224e3c0b0",
                 "shasum": ""
             },
             "require": {
@@ -661,7 +661,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-08-03 14:21:49"
+            "time": "2017-08-20 05:47:52"
         },
         {
             "name": "phpunit/phpunit",
@@ -1411,19 +1411,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/Peanut.git",
-                "reference": "762425d76408098348b19d3ece1d0c6325414321"
+                "reference": "78aa6cffb9396431a026de518ba17d4f1fb116da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/Peanut/zipball/762425d76408098348b19d3ece1d0c6325414321",
-                "reference": "762425d76408098348b19d3ece1d0c6325414321",
+                "url": "https://api.github.com/repos/tsorelle/Peanut/zipball/78aa6cffb9396431a026de518ba17d4f1fb116da",
+                "reference": "78aa6cffb9396431a026de518ba17d4f1fb116da",
                 "shasum": ""
             },
             "require": {
-                "phpunit/phpunit": "6.1.3",
-                "twoquakers/tops": "dev-master"
+                "phpunit/phpunit": "6.1.3"
             },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tops\\": "pnut.root/modules/src/tops",
+                    "Peanut\\": "pnut.root/modules/src/peanut",
+                    "Peanut\\testing\\": "tests/lib"
+                }
+            },
             "license": [
                 "GPL-3.0+"
             ],
@@ -1438,7 +1444,7 @@
                 "source": "https://github.com/tsorelle/Peanut/tree/master",
                 "issues": "https://github.com/tsorelle/Peanut/issues"
             },
-            "time": "2017-08-14 12:07:10"
+            "time": "2017-08-22 14:35:23"
         },
         {
             "name": "twoquakers/peanut-c5",
@@ -1446,15 +1452,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-concrete5.git",
-                "reference": "11a725a4a7953f9394eecd7cad735907687570cc"
+                "reference": "93dae1a313898e04b7e71235ccea9b1ed5f5080c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-concrete5/zipball/11a725a4a7953f9394eecd7cad735907687570cc",
-                "reference": "11a725a4a7953f9394eecd7cad735907687570cc",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-concrete5/zipball/93dae1a313898e04b7e71235ccea9b1ed5f5080c",
+                "reference": "93dae1a313898e04b7e71235ccea9b1ed5f5080c",
                 "shasum": ""
             },
+            "require": {
+                "phpunit/phpunit": "6.1.3"
+            },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tops\\": "web.root/packages/knockout_view/src/tops",
+                    "Tops\\concrete5\\": "web.root/packages/knockout_view/src/concrete5",
+                    "Peanut\\": "web.root/packages/knockout_view/src/peanut"
+                }
+            },
             "license": [
                 "GPL-3.0+"
             ],
@@ -1469,7 +1485,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-concrete5/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-concrete5/issues"
             },
-            "time": "2017-08-10 18:04:53"
+            "time": "2017-08-22 11:29:11"
         },
         {
             "name": "twoquakers/peanut-d8",
@@ -1477,15 +1493,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-drupal8.git",
-                "reference": "a0368c8a482c22ffef2f763a6a1bf2b1319b3d76"
+                "reference": "4c589f3ff693d01d159022ded73393f874fc999c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/a0368c8a482c22ffef2f763a6a1bf2b1319b3d76",
-                "reference": "a0368c8a482c22ffef2f763a6a1bf2b1319b3d76",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-drupal8/zipball/4c589f3ff693d01d159022ded73393f874fc999c",
+                "reference": "4c589f3ff693d01d159022ded73393f874fc999c",
                 "shasum": ""
             },
+            "require": {
+                "phpunit/phpunit": "6.1.3"
+            },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tops\\": "web.root/modules/twoquakers/peanut/src/tops",
+                    "Tops\\drupal8\\": "web.root/modules/twoquakers/peanut/src/drupal8",
+                    "Peanut\\": "web.root/modules/twoquakers/peanut/src/peanut"
+                }
+            },
             "license": [
                 "GPL-3.0+"
             ],
@@ -1500,7 +1526,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-drupal8/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-drupal8/issues"
             },
-            "time": "2017-08-10 13:33:24"
+            "time": "2017-08-22 00:04:37"
         },
         {
             "name": "twoquakers/peanut-qnut",
@@ -1542,12 +1568,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/peanut-for-wordpress.git",
-                "reference": "9fcdb3d8c5b0881fa57927b5bf91646903d5582d"
+                "reference": "8162bff6122addb4c12fcdf3cd836d29df4ddc4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/9fcdb3d8c5b0881fa57927b5bf91646903d5582d",
-                "reference": "9fcdb3d8c5b0881fa57927b5bf91646903d5582d",
+                "url": "https://api.github.com/repos/tsorelle/peanut-for-wordpress/zipball/8162bff6122addb4c12fcdf3cd836d29df4ddc4f",
+                "reference": "8162bff6122addb4c12fcdf3cd836d29df4ddc4f",
                 "shasum": ""
             },
             "require": {
@@ -1575,7 +1601,7 @@
                 "source": "https://github.com/tsorelle/peanut-for-wordpress/tree/master",
                 "issues": "https://github.com/tsorelle/peanut-for-wordpress/issues"
             },
-            "time": "2017-08-14 14:51:32"
+            "time": "2017-08-21 19:06:23"
         },
         {
             "name": "twoquakers/tops",
@@ -1583,12 +1609,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/tops.git",
-                "reference": "c90b4547fc18852f2620fc0456577b47bea1d294"
+                "reference": "0b9c479f0f88d30e115defa507bf3e600801d9dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/tops/zipball/c90b4547fc18852f2620fc0456577b47bea1d294",
-                "reference": "c90b4547fc18852f2620fc0456577b47bea1d294",
+                "url": "https://api.github.com/repos/tsorelle/tops/zipball/0b9c479f0f88d30e115defa507bf3e600801d9dc",
+                "reference": "0b9c479f0f88d30e115defa507bf3e600801d9dc",
                 "shasum": ""
             },
             "require": {
@@ -1616,7 +1642,7 @@
                 "source": "https://github.com/tsorelle/tops/tree/master",
                 "issues": "https://github.com/tsorelle/tops/issues"
             },
-            "time": "2017-08-11 11:23:50"
+            "time": "2017-08-21 17:12:11"
         },
         {
             "name": "twoquakers/tops-db",
@@ -1624,12 +1650,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tsorelle/tops-db.git",
-                "reference": "e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2"
+                "reference": "0ff05e82ca0c34b0e49ba212bbb4127332ab3829"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tsorelle/tops-db/zipball/e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2",
-                "reference": "e84d76bc3805b3d0b5ae1b72e6d740a828cf9fd2",
+                "url": "https://api.github.com/repos/tsorelle/tops-db/zipball/0ff05e82ca0c34b0e49ba212bbb4127332ab3829",
+                "reference": "0ff05e82ca0c34b0e49ba212bbb4127332ab3829",
                 "shasum": ""
             },
             "require": {
@@ -1658,7 +1684,7 @@
                 "source": "https://github.com/tsorelle/tops-db/tree/master",
                 "issues": "https://github.com/tsorelle/tops-db/issues"
             },
-            "time": "2017-08-11 19:51:20"
+            "time": "2017-08-16 22:53:28"
         },
         {
             "name": "webmozart/assert",
