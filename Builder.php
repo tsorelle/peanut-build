@@ -10,8 +10,6 @@ use ZipArchive;
  * Time: 4:37 AM
  */
 
-
-
 class Builder
 {
     private $settings;
@@ -79,6 +77,7 @@ class Builder
         $topsDbSrc = $this->getSourcePath('topsdb');
         $pnutSrc = $this->getSourcePath('pnut');
         $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
+        $srcRoot = realpath("$pnutSrc/modules/src");
         $peanutPhpSource=$this->concatPath($pnutSrc,"modules/src/peanut");
 
         $pnutTestRoot = realpath("$pnutSrc/modules/src/test");
@@ -93,6 +92,7 @@ class Builder
             $this->parseIniList( $this->settings['tsfix'],false,'web.root/application'));
         $this->zipDirectory($zip,$peanutAppSrc,"web.root/application",$appExcludes);
         $this->addAppTests($zip,$peanutAppSrc,'/'.$this->settings['modules'][$project].'/');
+        $zip->addFile("$srcRoot/.htaccess","web.root/$modulePath/src/.htaccess");
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,"$topsDbSrc","web.root/$modulePath/src/tops");
         $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
@@ -137,7 +137,7 @@ class Builder
         $dateStamp = date('Y-m-d');
         $zipname = $this->settings['packages'][$project];
         $zipname = "$zipname-v$version-$dateStamp.zip";
-        $templatePath = $buildDir.'/templates';
+        // $templatePath = $buildDir.'/templates';
 
         $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
 
@@ -244,6 +244,8 @@ class Builder
         $moduleTarget = $this->makePath($modulePath, 'pnut');
         $peanutPhpSource=$this->concatPath($pnutSourcePath,"modules/src/peanut");
         $peanutPhpTarget=$this->makePath($modulePath,"src/peanut");
+        $modulePhpRoot=$this->concatPath($pnutSourcePath,"modules/src");
+        $modulePhpTarget=$this->concatPath($modulePath,"/src");
 
         $pnutDirs = $this->settings['pnut-dirs'];
         foreach ($pnutDirs as $dir => $mode) {
@@ -266,6 +268,7 @@ class Builder
         }
 
         $this->copyDirectoryContents($peanutPhpSource,$peanutPhpTarget);
+        copy("$modulePhpRoot/.htaccess","$modulePhpTarget/.htaccess");
         print "done\n";
     }
 
@@ -495,6 +498,9 @@ class Builder
         $settings = file_get_contents("$templatePath/settings.ini");
         foreach ($values as $key=>$value) {
             $settings = str_replace('{{'.$key.'}}',$value,$settings);
+        }
+        if (empty($values['autoload'])) {
+            $settings = str_replace('{{autoload}}','',$settings);
         }
         file_put_contents("$tmpFilePath/settings.tmp",$settings);
         $configPath = 'web.root/application/config';
