@@ -252,8 +252,13 @@ class Builder
             $target = $this->concatPath($moduleTarget, $dir);
             $source = $this->concatPath($moduleSource,$dir);
             $this->makeDir($target,$mode);
-            $this->copyDirectoryContents($source, $target);
+            if ($mode != 'empty') {
+                $this->copyDirectoryContents($source, $target);
+            }
         }
+        $target = $this->concatPath($moduleTarget, $dir);
+        $source = $this->concatPath($moduleSource,$dir);
+        $this->makeDir($target,$mode);
 
         $appIncludes = $this->parseIniList($this->settings['application-files'],true);
         foreach ($appIncludes as $targetFile) {
