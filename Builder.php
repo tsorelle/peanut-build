@@ -12,6 +12,11 @@ use ZipArchive;
 
 class Builder
 {
+    // todo: Distribution zip: include installation directory
+    // todo: Distribution zip: Bundle application.zip to installation directory7
+    // todo: Distribution zip:  put template ini files in installation directory
+    // todo: test distribution and installation
+
     private $settings;
 
     function __construct()
@@ -235,6 +240,8 @@ class Builder
             return;
         }
         print "Updating Peanut for $project...";
+
+        $projectSourceRoot = $this->getSourcePath($project);
         $pnutSourcePath = $this->getSourcePath('pnut');
         $modulePath = $this->makeModulePath($project);
         $projectRoot = $this->getProjectRoot($project);
@@ -246,6 +253,8 @@ class Builder
         $peanutPhpTarget=$this->makePath($modulePath,"src/peanut");
         $modulePhpRoot=$this->concatPath($pnutSourcePath,"modules/src");
         $modulePhpTarget=$this->concatPath($modulePath,"/src");
+        $packagesSource = $this->concatPath($moduleSource,'packages');
+        $packagesTarget = $this->concatPath($moduleTarget,'packages');
 
         $pnutDirs = $this->settings['pnut-dirs'];
         foreach ($pnutDirs as $dir => $mode) {
@@ -256,9 +265,14 @@ class Builder
                 $this->copyDirectoryContents($source, $target);
             }
         }
-        $target = $this->concatPath($moduleTarget, $dir);
-        $source = $this->concatPath($moduleSource,$dir);
-        $this->makeDir($target,$mode);
+
+        $target = $this->concatPath($moduleTarget,'peanut.ini');
+        $source = $this->concatPath($moduleSource,'peanut.ini');
+        $this->copyFile($source,$target);
+
+        $target = $this->concatPath($moduleTarget,'translations.ini');
+        $source = $this->concatPath($moduleSource,'translations.ini');
+        $this->copyFile($source,$target);
 
         $appIncludes = $this->parseIniList($this->settings['application-files'],true);
         foreach ($appIncludes as $targetFile) {
@@ -274,6 +288,14 @@ class Builder
 
         $this->copyDirectoryContents($peanutPhpSource,$peanutPhpTarget);
         copy("$modulePhpRoot/.htaccess","$modulePhpTarget/.htaccess");
+
+        $distini = parse_ini_file("$projectSourceRoot/dist/distribution.ini",true);
+        $packages = empty($distini['packages']) ? [] : array_keys($distini['packages']);
+        foreach ($packages as $package) {
+            $this->makePath($packagesTarget,$package);
+            $this->copyDirectoryContents("$packagesSource/$package","$packagesTarget/$package");
+        }
+
         print "done\n";
     }
 

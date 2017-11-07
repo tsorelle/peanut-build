@@ -9,4 +9,4 @@ namespace Peanut;
 
 require_once __DIR__.'\Builder.php';
 Builder::UpdatePeanutProjects();
-// Builder::UpdatePeanutProjects('test-proj');
+// Builder::UpdatePeanutProjects('pnutwp');
