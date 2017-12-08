@@ -128,56 +128,68 @@ class Builder
         print "Building distribution files for package $project...";
         $buildDir = __DIR__;
         $sourceRoot = $this->getSourcePath($project);
-
         $moduleSub = $this->settings['modules'][$project];
-        $pkgDir = "web.root/$moduleSub/pnut/packages/$project";
-        $pkgSrcPath =  $this->concatPath($sourceRoot,$pkgDir);;
-        $pkgSettingsFile = "$pkgSrcPath/package.ini";
-        $pkgSettings = parse_ini_file($pkgSettingsFile,true);
-        if ($pkgSettings === false) {
-            print "\nSource settings for $project not found.";
+        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+        $packages = @$distini['export'];
+        if (empty($packages)) {
+            print "Project $project has no packages for export.\n";
             return;
         }
-        $version = $pkgSettings['package']['version'];
+        $version = $distini['values']['appVersion'];
         $dateStamp = date('Y-m-d');
-        $zipname = $this->settings['packages'][$project];
-        $zipname = "$zipname-v$version-$dateStamp.zip";
-        // $templatePath = $buildDir.'/templates';
-
-        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
-
+        $zipname = "$project-v$version-$dateStamp.zip";
         $includes = array();
         $excludes = array();
-        foreach ($distini['files'] as $key => $value) {
-            if (empty($value)) {
-                $excludes[] = str_replace('\\','/',$key);
-            }
-            else {
-                $includes[] = str_replace('\\','/',$key);
-            }
-        }
-
         $zip = new ZipArchive();
         $zipFilePath = "$buildDir/dist/".$zipname;
         if (file_exists($zipFilePath)) {
             unlink($zipFilePath);
         }
         $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $this->zipDirectory($zip,$pkgSrcPath,"peanut-files/pnut/packages/$project");
 
-        foreach ($distini['rename'] as $file=>$target) {
-            $this->addFromSource($file, $sourceRoot, $zip, $excludes,$target);
+        if (isset($distini['files'])) {
+
+            foreach ($distini['files'] as $key => $value) {
+                if (empty($value)) {
+                    $excludes[] = str_replace('\\', '/', $key);
+                } else {
+                    $includes[] = str_replace('\\', '/', $key);
+                }
+            }
         }
 
+        $packagesSourcePath = "$sourceRoot/web.root/$moduleSub";
+
+        foreach ($packages as $package => $include) {
+            if (!$include) {
+                continue;
+            }
+            $pkgDir = "pnut/packages/$package";
+            $pkgSrcPath =  $this->concatPath($packagesSourcePath,$pkgDir);;
+            $pkgSettingsFile = "$pkgSrcPath/package.ini";
+            $pkgSettings = parse_ini_file($pkgSettingsFile,true);
+            if ($pkgSettings === false) {
+                print "\nSource settings for $project not found.";
+                return;
+            }
+            $this->zipDirectory($zip,$pkgSrcPath,$pkgDir);
+        }
+        if (isset($distini['rename'])) {
+            foreach ($distini['rename'] as $file=>$target) {
+                $this->addFromSource($file, $sourceRoot, $zip, $excludes,$target);
+            }
+
+        }
         foreach ($includes as $file) {
             $this->addFromSource("other-files/$file", $sourceRoot, $zip, $excludes);
         }
 
-        foreach ($distini['libraries'] as $lib => $path) {
-            $libPath = $this->getSourcePath($lib);
-            $this->zipDirectory($zip,$libPath,"peanut-files/$path");
+        if (isset($distini['libraries'])) {
+            foreach ($distini['libraries'] as $lib => $path) {
+                $libPath = $this->getSourcePath($lib);
+                $this->zipDirectory($zip, $libPath, "peanut-files/$path");
+            }
         }
-
         $zip->close();
         $this->cleanup();
         print "done\n";
@@ -195,6 +207,39 @@ class Builder
         }
 
         print "\nProjects completed\n";
+    }
+
+    public static function UpdateQnut($project='pnutwp')
+    {
+        $builder = new Builder();
+        $builder->updateTops($project);
+        $builder->updatePeanut($project);
+        $builder->updateQnutPackages($project);
+        print "\nUpdates complete\n";
+    }
+
+    public function updateQnutPackages($project='pnutwp')
+    {
+        $sourceRoot = $this->getSourcePath('qnut');
+        $srcModules = $this->makeModulePath('qnut');
+        $targetModules = $this->makeModulePath($project);
+
+        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+        $packages = @$distini['export'];
+        foreach ($packages as $package => $include) {
+            if ($include) {
+                print "Updating QNut package '$package' in project '$project'...";
+                $src = "$srcModules/pnut/packages/$package";
+                $target = "$targetModules/pnut/packages/$package";
+                $src = realpath($src);
+                if ($src === false) {
+                    exit("Sourch path not found: $src");
+                }
+                $this->makeDir($target);
+                $this->copyDirectoryContents($src,$target);
+                print "Done\n";
+            }
+        }
     }
 
     public static function UpdateTopsProjects($projects=null)
@@ -298,7 +343,7 @@ class Builder
 
         print "done\n";
     }
-
+/*
     public static function UpdateWordpressProjects($projects=null) {
 
         $builder = new Builder();
@@ -311,6 +356,8 @@ class Builder
         print "\nWordpress updates completed\n";
 
     }
+
+
     private function updateWordpress($project) {
         print "Updating Peanut/Wordpress for $project...";
         $modulePath = $this->getModulePath($project);
@@ -331,7 +378,7 @@ class Builder
         print "done\n";
 
     }
-
+*/
     //*******************
     //  File/Directory handling
     //*************************
