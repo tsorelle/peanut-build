@@ -1,7 +1,7 @@
 {
   "name": "twoquakers/peanut-build",
   "description": "Dynamic service commands for PHP",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "GPL-3.0+",
   "authors": [
     {
@@ -13,10 +13,6 @@
     {
       "type": "vcs",
       "url": "https://github.com/tsorelle/tops"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/tsorelle/tops-db"
     },
     {
       "type": "vcs",
@@ -37,15 +33,20 @@
     {
       "type": "vcs",
       "url": "https://github.com/tsorelle/Qnut"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/tsorelle/tops.phpmailer"
     }
   ],
   "require": {
     "twoquakers/tops" : "dev-master",
-    "twoquakers/tops-db" : "dev-master",
     "twoquakers/peanut" : "dev-master",
     "twoquakers/peanut-wp" : "dev-master",
     "twoquakers/peanut-c5" : "dev-master",
     "twoquakers/peanut-d8" : "dev-master",
-    "twoquakers/peanut-qnut" : "dev-master"
+    "twoquakers/peanut-qnut" : "dev-master",
+    "twoquakers/tops-phpmailer" : "dev-master",
+    "ext-zip": "*"
   }
 }

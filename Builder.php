@@ -1,6 +1,5 @@
 <?php
 namespace Peanut;
-use PHPUnit\Runner\Exception;
 use ZipArchive;
 
 /**
@@ -12,10 +11,6 @@ use ZipArchive;
 
 class Builder
 {
-    // todo: Distribution zip: include installation directory
-    // todo: Distribution zip: Bundle application.zip to installation directory7
-    // todo: Distribution zip:  put template ini files in installation directory
-    // todo: test distribution and installation
 
     private $settings;
 
@@ -39,73 +34,114 @@ class Builder
         }
         print "\nProjects completed\n";
     }
+
+    private function getDistributionIni($sourceRoot) {
+        return @parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+    }
+
+    /**
+     * @param $project
+     * @throws \Exception
+     *
+     * Include:
+     *      /application/assets from project[files]
+     *      /config/*  - *.ini from peanut + project[files]  - project vcs should have it's own ini dependencies
+     *      /application/mvvm  from peanut + project[files]
+     *      /application/install  from peanut
+     *      /application/assets/* - js/libraries
+     *      /application/src - bookstore/*
+     *      (peanut-module)/*
+     */
     private function buildZip($project) {
         print "Building distribution files for $project...";
-        $sourceRoot = $this->getSourcePath($project);
-        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
-        $version = $distini['values']['appVersion'];
-        $dateStamp = date('Y-m-d');
-        $zipname = $this->settings['distribution'][$project];
-        $zipname = "$zipname-v$version-$dateStamp.zip";
-        // print "\n$zipname\n";
-
-        $zip = new ZipArchive();
-        $buildDir = __DIR__;
-
-
-        $includes = array();
-        $excludes = array();
-        foreach ($distini['files'] as $key => $value) {
-            if (empty($value)) {
-                $excludes[] = str_replace('\\','/',$key);
-            }
-            else {
-                $includes[] = str_replace('\\','/',$key);
-            }
-        }
-        $zipFilePath = "$buildDir/dist/".$zipname;
-        if (file_exists($zipFilePath)) {
-            unlink($zipFilePath);
-        }
-        $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-        foreach ($distini['rename'] as $file=>$target) {
-            $this->addFromSource($file, $sourceRoot, $zip, $excludes,$target);
-        }
-
-        foreach ($includes as $file) {
-            $this->addFromSource($file, $sourceRoot, $zip, $excludes);
-        }
-
+        /*****************************
+        get source and target paths
+        ******************************/
+        $projectSourceRoot = $this->getSourcePath($project);
+        $topsRoot = $this->getSourcePath('topsroot');
         $modulePath = $this->settings['modules'][$project];
         $topsSrc = $this->getSourcePath('tops');
-        $topsDbSrc = $this->getSourcePath('topsdb');
+        // $topsDbSrc = $this->getSourcePath('topsdb');
         $pnutSrc = $this->getSourcePath('pnut');
         $pnutSrcRoot = realpath("$pnutSrc/modules/pnut");
         $srcRoot = realpath("$pnutSrc/modules/src");
         $peanutPhpSource=$this->concatPath($pnutSrc,"modules/src/peanut");
-
-        $pnutTestRoot = realpath("$pnutSrc/modules/src/test");
+        $buildDir = __DIR__;
+        $pnutTestRoot = realpath("$pnutSrc/modules/peanut/src/test");
         if ($pnutSrcRoot === false) {
             print "\nPeanut root path not found.\n";
             return;
         }
-        $projectRoot = $this->getProjectRoot($project);
-        $peanutAppSrc = $this->concatPath($projectRoot,'application');
+        $peanutAppSrc = $this->concatPath($pnutSrc,'application');
+
+        /***************
+         create zip file
+        ****************/
+        $distini = $this->getDistributionIni($projectSourceRoot);
+        $version = $distini['values']['appVersion'];
+        $dateStamp = date('Y-m-d');
+        $zipname = $this->settings['distribution'][$project];
+        $zipname = "$zipname-v$version-$dateStamp.zip";
+        $zipFilePath = "$buildDir/dist/".$zipname;
+        if (file_exists($zipFilePath)) {
+            unlink($zipFilePath);
+        }
+        $zip = new ZipArchive();
+        $zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        /***********************
+         zip files from project
+         ***********************/
+        $includes = array();
+        $excludes = array();
+        foreach ($distini['files'] as $key => $value) {
+            if (empty($value)) {
+                // files to exclude:  filename=0
+                $excludes[] = str_replace('\\','/',$key);
+            }
+            else {
+                // files to include:  filename=1
+                $includes[] = str_replace('\\','/',$key);
+            }
+        }
+
+        foreach ($distini['rename'] as $file=>$target) {
+            $this->addFromSource($file, $projectSourceRoot, $zip, $excludes,$target);
+        }
+
+        foreach ($includes as $file) {
+            $this->addFromSource($file, $projectSourceRoot, $zip, $excludes);
+        }
+
+
+
+        /******************************
+         * Add peanut core files
+         ******************************/
+
+        // tops installation files
+        $this->zipDirectory($zip, $topsRoot.DIRECTORY_SEPARATOR.'installation','installation');
+
+        // appExclues are files from peanut-source/application that will be replaced by project files
         $appExcludes = array_merge(
-            $this->parseIniList($this->settings['application-files'],false, 'web.root/application'),
-            $this->parseIniList( $this->settings['tsfix'],false,'web.root/application'));
-        $this->zipDirectory($zip,$peanutAppSrc,"web.root/application",$appExcludes);
+            $this->parseIniList($this->settings['application-files'], false, 'web.root/application'),
+            $this->parseIniList($this->settings['tsfix'], false, 'web.root/application'));
+        $this->zipDirectory($zip, $peanutAppSrc, "web.root/application", $appExcludes);
         $this->addAppTests($zip,$peanutAppSrc,'/'.$this->settings['modules'][$project].'/');
-        $zip->addFile("$srcRoot/.htaccess","web.root/$modulePath/src/.htaccess");
+        $this->addFromSource('.htaccess',$srcRoot,$zip);
         $this->zipDirectory($zip,"$topsSrc","web.root/$modulePath/src/tops");
-        $this->zipDirectory($zip,"$topsDbSrc","web.root/$modulePath/src/tops");
-        $this->zipDirectory($zip,$pnutTestRoot,"web.root/$modulePath/src/test");
+        // $this->zipDirectory($zip,$pnutTestRoot,"web.root/application/peanut/src/test");
         $this->zipDirectory($zip,$pnutSrcRoot,"web.root/$modulePath/pnut");
         $this->zipDirectory($zip,$peanutPhpSource,"web.root/$modulePath/src/peanut");
-        $this->addConfigFiles($zip,$distini["values"]);
-        if (!empty($distini['js'])) {
-            $this->addJsLibraries($zip, $distini['js']);
+
+        /***********************************
+         * Shared files that are not versioned.
+         **************************************/
+        if (!empty($distini['libraries'])) {
+            $this->addJsLibraries($zip, $distini['libraries'],"web.root/application");
+        }
+        if (!empty($distini['vendors'])) {
+            $this->addVendorLibraries($zip,$distini['vendors'],$modulePath);
         }
         $this->zipDirectory($zip,realpath(__DIR__.'/files/typings'),"web.root/$modulePath/typings");
         $zip->close();
@@ -129,7 +165,7 @@ class Builder
         $buildDir = __DIR__;
         $sourceRoot = $this->getSourcePath($project);
         $moduleSub = $this->settings['modules'][$project];
-        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+        $distini = $this->getDistributionIni($sourceRoot); // parse_ini_file("$sourceRoot/dist/distribution.ini",true);
         $packages = @$distini['export'];
         if (empty($packages)) {
             print "Project $project has no packages for export.\n";
@@ -224,7 +260,7 @@ class Builder
         $srcModules = $this->makeModulePath('qnut');
         $targetModules = $this->makeModulePath($project);
 
-        $distini = parse_ini_file("$sourceRoot/dist/distribution.ini",true);
+        $distini = $this->getDistributionIni($sourceRoot); // parse_ini_file("$sourceRoot/dist/distribution.ini",true);
         $packages = @$distini['export'];
         foreach ($packages as $package => $include) {
             if ($include) {
@@ -259,10 +295,24 @@ class Builder
         $source = $this->getSourcePath('tops');
         $modulePath   = $this->makeModulePath($project);
         $target = $this->makePath($modulePath, "src/tops");
+        $this->copyDirectoryContents($source, $target);
 
-        $this->copyDirectoryContents($source, $target);
-        $source = $this->getSourcePath('topsdb');
-        $this->copyDirectoryContents($source, $target);
+        $projectRoot = $this->getSourcePath($project);
+        $dist = $this->getDistributionIni($projectRoot);
+        if (!empty($dist)) {
+            $extensions = @$dist['extensions'];
+            if (!empty($extensions)) {
+                foreach ($extensions as $extension => $value) {
+                    $source = $this->getSourcePath($extension);
+                    if ($source) {
+                        $this->copyDirectoryContents($source, $target);
+                    }
+                }
+            }
+        }
+
+//        $source = $this->getSourcePath('topsdb');
+//        $this->copyDirectoryContents($source, $target);
 
         print "done\n";
     }
@@ -334,7 +384,7 @@ class Builder
         $this->copyDirectoryContents($peanutPhpSource,$peanutPhpTarget);
         copy("$modulePhpRoot/.htaccess","$modulePhpTarget/.htaccess");
 
-        $distini = parse_ini_file("$projectSourceRoot/dist/distribution.ini",true);
+        $distini = $this->getDistributionIni($projectSourceRoot); // parse_ini_file("$projectSourceRoot/dist/distribution.ini",true);
         $packages = empty($distini['packages']) ? [] : array_keys($distini['packages']);
         foreach ($packages as $package) {
             $this->makePath($packagesTarget,$package);
@@ -383,9 +433,15 @@ class Builder
     //  File/Directory handling
     //*************************
     private function copyFile($src,$dst) {
-        if ((strtolower(substr($src,-4)) == '.ini') &&
-            file_exists($dst) ) {
-            return;
+        if ((strtolower(substr($src,-4)) == '.ini')) {
+            $parts = explode('/',$src);
+            $iniName = array_pop($parts);
+            if ((
+                $iniName == 'settings.ini' ||
+                $iniName == 'database.ini' )
+                && file_exists($dst)) {
+                return;
+            }
         }
         copy($src,$dst);
     }
@@ -436,12 +492,6 @@ class Builder
         }
         closedir($dir);
     }
-
-    private function copyDirectory($sourceDir,$targetDir,$fileConfig = array(),$rootLength=0,$isEmpty=false) {
-       // $this->makePath()
-
-    }
-
 
     private function copyDirectoryContents($sourceDir,$targetDir,$fileConfig = array(),$rootLength=0,$isEmpty=false) {
         if (!file_exists("$sourceDir")) {
@@ -555,7 +605,7 @@ class Builder
         $path = realpath($rawpath);
         if ($path === false) {
             // return false;
-            throw new \Exception("Sourc path '$path' not found.");
+            throw new \Exception("Source path '$path' not found.");
         }
         if (strpos($path,':') == 1) {
             $path = substr($path,2);
@@ -566,6 +616,12 @@ class Builder
     //****************************
     // Zip file routines
     //***************************
+
+    /**
+     * @param ZipArchive $zip
+     * @param array $values
+     * deprecated
+     */
     private function addConfigFiles(ZipArchive $zip, array $values) {
         $templatePath = __DIR__.'/templates';
         $tmpFilePath = __DIR__.'/tmp';
@@ -578,14 +634,17 @@ class Builder
         }
         file_put_contents("$tmpFilePath/settings.tmp",$settings);
         $configPath = 'web.root/application/config';
-        $zip->addFile("$tmpFilePath/settings.tmp","$configPath/settings.ini");
+        // $zip->addFile("$tmpFilePath/settings.tmp","$configPath/settings.ini");
         $zip->addFile("$templatePath/database.ini","$configPath/database.ini");
-        $zip->addFile("$templatePath/viewmodels.ini","$configPath/viewmodels.ini");
+        // $zip->addFile("$templatePath/viewmodels.ini","$configPath/viewmodels.ini");
 
     }
     private function zipDirectory(ZipArchive $zip, $srcPath, $directory,array $excludes=array()) {
         $zip->addEmptyDir($directory);
         $topfiles = scandir($srcPath); //"$srcPath/$directory");
+        if ($topfiles === false) {
+            exit("Error: invalid path: $srcPath");
+        }
         foreach ($topfiles as $file) {
             if ($file == '.' || $file == '..') {
                 continue;
@@ -636,20 +695,34 @@ class Builder
             $zip->addFile($tempFile,$targetFile);
         }
     }
-    private function addJsLibraries(ZipArchive $zip, array $config) {
+    private function addJsLibraries(ZipArchive $zip, array $config,$appPath) {
         $srcPath = realpath(__DIR__.'/files/js');
+        if($srcPath === false ) {
+            exit ("Cannot find paths");
+        }
+        $targetPath = "$appPath/assets/js";
+        $zip->addFile($srcPath.DIRECTORY_SEPARATOR.'TestLib.ts',$targetPath.DIRECTORY_SEPARATOR.'TestLib.ts');
+        $zip->addFile($srcPath.DIRECTORY_SEPARATOR.'TestLib.js',$targetPath.DIRECTORY_SEPARATOR.'TestLib.js');
+        $srcPath = $srcPath.DIRECTORY_SEPARATOR.'libraries';
+        $targetPath = "$appPath/assets/js/libraries";
         $names = array_keys($config);
-        $files = scandir($srcPath);
-        foreach ($files as $fileName) {
-            $key = $this->partialNameInArray($fileName,$names);
-            if ($key !== false) {
-                $path = $config[$key];
-                $zip->addFile("$srcPath/$fileName","web.root/$path/$fileName");
-            }
+        foreach ($names as $name) {
+            $this->zipDirectory($zip,$srcPath.DIRECTORY_SEPARATOR.$name,"$targetPath/$name");
         }
     }
 
-    //****************************
+    private function addVendorLibraries(ZipArchive $zip, array $config,$modulePath)
+    {
+        $vendors = array_keys($config);
+        $srcPath = realpath(__DIR__.'/files/vendor');
+        $target = "web.root/$modulePath/src/vendor";
+        foreach ($vendors as $vendor) {
+            $this->zipDirectory($zip,"$srcPath".DIRECTORY_SEPARATOR."$vendor","$target/$vendor");
+        }
+    }
+
+
+        //****************************
     // Sub--routines
     //***************************
     private function fixReferencePaths($filePath, $outFile, $moduleSub) {
@@ -663,8 +736,9 @@ class Builder
         for ($i = 0; $i < $lineCount; $i++) {
             $line = $lines[$i];
             if (strpos($line, '<reference path')) {
+                $fixed = str_replace('/modules/', $moduleSub, $line);
                 $lines[$i] = str_replace('/modules/', $moduleSub, $line);
-                //$fixed = str_replace('/modules/', $moduleSub, $line);
+                //
                 // $line = $fixed;
             }
             // $result[] = $line;
@@ -692,16 +766,7 @@ class Builder
         }
         return $result;
     }
-    private function partialNameInArray($name, $list) {
-        if ($name != '.' && $name != '..') {
-            foreach ($list as $partial) {
-                if (strpos($name, $partial) === 0) {
-                    return $partial;
-                }
-            }
-        }
-        return false;
-    }
+
     private function checkDir($path) {
         if (!file_exists($path)) {
             throw new \Exception("Path '$path' not found. Must pre-install peanut files from distribution zip.");
